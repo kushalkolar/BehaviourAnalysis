@@ -70,22 +70,53 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         for d in tqdm(dirs):
             try:
 
-                if "exp_" not in d.lower():
-                    newdir = os.path.join(self.project_path, "Exp_"+d.split("\\")[-1])
-                else:
-                    newdir = os.path.join(self.project_path, d.split("\\")[-1])
-                if not os.path.exists(newdir):
-                    os.mkdir(newdir)
-
+                #check if files are in the folders
+                stimuli_profile = "None"
+                metadata = "None"
+                temperature = "None"
+                arena = "None"
+                tracking = "None"
                 for root, directories, files in os.walk(d):
                     for f in files:
-                        if "stimuli_profile" in f or "metadata" in f or "temperature" in f or "arena.txt" in f.lower():
-                            shutil.copy2(os.path.join(root, f), newdir)
-                        if "tracking" in f.lower() and "realspace" not in f.lower():
-                            shutil.copy2(os.path.join(root, f), newdir)
+                        if "stimuli_profile" in f:
+                            stimuli_profile = os.path.join(root, f)
+                        elif "metadata" in f:
+                            metadata = os.path.join(root, f)
+                        elif "temperature" in f:
+                            temperature = os.path.join(root, f)
+                        elif "arena.txt" in f.lower():
+                            arena = os.path.join(root, f)
+                        elif "tracking" in f.lower() and "realspace" not in f.lower():
+                            tracking  = os.path.join(root, f)
+
+                all_files_there = True
+                for f in [stimuli_profile, metadata, temperature, arena, tracking]:
+                    if f == "None":
+                        all_files_there = False
+
+                if all_files_there:
+                    if "exp_" not in d.lower():
+                        newdir = os.path.join(self.project_path, "Exp_"+d.split("\\")[-1])
+                    else:
+                        newdir = os.path.join(self.project_path, d.split("\\")[-1])
+                    if not os.path.exists(newdir):
+                        os.mkdir(newdir)
+                    for f in [stimuli_profile, metadata, temperature, arena, tracking]:
+                        shutil.copy2(os.path.join(root, f), newdir)
+                else:
+                    print("Not all files present for ", d)
+
+                # for root, directories, files in os.walk(d):
+                #     for f in files:
+                #         if "stimuli_profile" in f or "metadata" in f or "temperature" in f or "arena.txt" in f.lower():
+                #             shutil.copy2(os.path.join(root, f), newdir)
+                #         if "tracking" in f.lower() and "realspace" not in f.lower():
+                #             shutil.copy2(os.path.join(root, f), newdir)
+
             except:
                 pass
-            # self.update_tree(0)
+
+        self.update_tree(0)
 
 
     def update_tree(self, index):

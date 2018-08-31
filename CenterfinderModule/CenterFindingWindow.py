@@ -46,8 +46,14 @@ class CenterFindingWindow(QtWidgets.QWidget):
         for root, dirs, files in os.walk(self.data_path):
             for f in files:
                 if ".avi" in f.lower():
-                    self.vid_dict[f] = os.path.join(root, f)
-                    self.ui.listWidgetVideos.addItem(f)
+                    if "inverted" in f.lower():
+                        destination_path = os.path.join(self.project_path, "Exp_" + f[:-13])
+                    else:
+                        destination_path = os.path.join(self.project_path, "Exp_" + f)
+                        destination_path = destination_path.rstrip(".avi")
+                    if os.path.exists(destination_path):
+                        self.vid_dict[f] = os.path.join(root, f)
+                        self.ui.listWidgetVideos.addItem(f)
 
     def find_video_center(self):
         vid = self.ui.listWidgetVideos.currentItem().text()
@@ -65,7 +71,7 @@ class CenterFindingWindow(QtWidgets.QWidget):
                 destination_path = destination_path.rstrip(".avi")
 
             if not os.path.exists(destination_path):
-                os.mkdir(destination_path)
+                print("No path exists for ", vid)
 
             with open(os.path.join(destination_path, "center.txt"), "w") as f:
                 f.write("X\tY\tR\n")
