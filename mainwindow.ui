@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>425</width>
+    <height>436</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidgetFolders">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Project Data</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0" colspan="2">
+         <widget class="QTreeWidget" name="treeWidgetProjectFolder">
+          <property name="columnCount">
+           <number>1</number>
+          </property>
+          <attribute name="headerDefaultSectionSize">
+           <number>100</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Project Structure</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>PushButton</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="pushButtonCalculateAll">
+          <property name="text">
+           <string>Calculate Parameters for All Project Data</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Raw Data</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QTreeWidget" name="treeWidgetDataFolder">
+          <property name="columnCount">
+           <number>1</number>
+          </property>
+          <attribute name="headerDefaultSectionSize">
+           <number>100</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>DataFolder Structure</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>425</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuProject">
+    <property name="title">
+     <string>Project</string>
+    </property>
+    <widget class="QMenu" name="menuAdd_To_Project">
+     <property name="title">
+      <string>Add To Project</string>
+     </property>
+     <addaction name="actionScrape_New_Data"/>
+     <addaction name="actionLoad_Existing_Dataset"/>
+    </widget>
+    <addaction name="actionNew_Project"/>
+    <addaction name="menuAdd_To_Project"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionCenterfinding"/>
+   </widget>
+   <addaction name="menuProject"/>
+   <addaction name="menuTools"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionScrape_Data">
+   <property name="text">
+    <string>Scrape Data</string>
+   </property>
+  </action>
+  <action name="actionLoad_Pickle">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionDetect_Circles">
+   <property name="text">
+    <string>Detect Circles</string>
+   </property>
+  </action>
+  <action name="actionAdd_to_Prioject">
+   <property name="text">
+    <string>Add to Prioject</string>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="actionScrape_New_Data">
+   <property name="text">
+    <string>Scrape New Data</string>
+   </property>
+  </action>
+  <action name="actionLoad_Existing_Dataset">
+   <property name="text">
+    <string>Load Existing Dataset</string>
+   </property>
+  </action>
+  <action name="actionCenterfinding">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Centerfinding</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
