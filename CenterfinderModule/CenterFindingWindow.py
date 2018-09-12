@@ -30,8 +30,11 @@ class CenterFindingWindow(QtWidgets.QWidget):
         self.vid_dict = {}
         self.videos_done = []
 
+        self.ui.comboBoxThresholdMethod.addItem("NONE")
         self.ui.comboBoxThresholdMethod.addItem("BINARY")
         self.ui.comboBoxThresholdMethod.addItem("TOZERO")
+        self.ui.comboBoxThresholdMethod.currentTextChanged.connect(self.check_thresholding_method)
+
 
         self.ui.comboBoxThresholdMethod.currentIndexChanged.connect(self.find_video_center)
         self.ui.pushButtonRedoCenter.clicked.connect(self.find_video_center)
@@ -41,6 +44,7 @@ class CenterFindingWindow(QtWidgets.QWidget):
 
         self.ui.pushButtonStartStop.clicked.connect(self.start_stop)
 
+        self.check_thresholding_method(self.ui.comboBoxThresholdMethod.currentText())
         self.counter = 0
 
         for root, dirs, files in os.walk(self.data_path):
@@ -54,6 +58,13 @@ class CenterFindingWindow(QtWidgets.QWidget):
                     if os.path.exists(destination_path):
                         self.vid_dict[f] = os.path.join(root, f)
                         self.ui.listWidgetVideos.addItem(f)
+
+    def check_thresholding_method(self, text):
+        if text.lower() == "none":
+            self.ui.spinBoxThreshold.setEnabled(False)
+        else:
+            self.ui.spinBoxThreshold.setEnabled(True)
+
 
     def find_video_center(self):
         vid = self.ui.listWidgetVideos.currentItem().text()
@@ -93,7 +104,12 @@ class CenterFindingWindow(QtWidgets.QWidget):
                           param1=self.ui.spinBoxparam1.value(),
                           param2=self.ui.spinBoxparam2.value(),
                           threshold=self.ui.spinBoxThreshold.value(),
-                          thresholdmethod = self.ui.comboBoxThresholdMethod.currentText())
+                          thresholdmethod = self.ui.comboBoxThresholdMethod.currentText(),
+                          iterations = self.ui.spinBoxIterations.value(),
+                          weight = self.ui.spinBoxContrastWeight.value(),
+                          gamma=self.ui.spinBoxGamma.value())
+
+
         circles = cf.find(path, show_result=True)
         return circles
 
@@ -124,6 +140,7 @@ class CenterFindingWindow(QtWidgets.QWidget):
         meta_df["center_y_adj"] = [center_y_adj]
         meta_df["center_x"] = [center_x]
         meta_df["center_y"] = [center_y]
+        meta_df["center_r"] = [center_r]
         meta_df.to_csv(os.path.join(path, "metadata.txt"), sep = "\t")
 
 

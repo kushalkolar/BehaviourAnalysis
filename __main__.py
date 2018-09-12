@@ -17,10 +17,13 @@ from pyqtgraph.Qt import QtCore, QtGui, QtWidgets, uic
 import pyqtgraph
 import sys, os, shutil
 from tqdm import tqdm
-from supportclasses import DataHandler
+from supportclasses import DataHandler, WaitingThread
 from CenterfinderModule.CenterFindingWindow import CenterFindingWindow
 from CenterfinderModule.CenterFinder import Centerfinder
+from parameter_progress_window import ParameterProgressWindow
 from threading import Thread
+import psutil
+import time
 ##Load creatorfile and 
 #qtCreatorFile = "mainwindow.ui" # Enter file here. 
 #Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -31,6 +34,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
+        
         self.ui = Ui_MainWindow()
     
         self.ui.setupUi(self)
@@ -47,6 +51,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.treeWidgetProjectFolder.itemDoubleClicked.connect(self.item_double_clicked)
 
         self.ui.actionCenterfinding.triggered.connect(self.open_centerfinding_window)
+
+        self.ui.actionCalculate_Parameters.triggered.connect(self.calculate_parameters)
+
+        self.ui.groupBoxProgress.setVisible(False)
 
     def new_project(self):
         self.project_path = QtWidgets.QFileDialog.getExistingDirectory(caption="Choose a project path")
@@ -163,6 +171,15 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
     def open_centerfinding_window(self):
         self.centerfinding_window = CenterFindingWindow(data_path = self.data_path, project_path = self.project_path)
         self.centerfinding_window.show()
+
+    def calculate_parameters(self):
+        self.datahandler = DataHandler(self.project_path)
+        self.datahandler.calculate_all_parameters()
+        QtWidgets.QMessageBox.warning(self, "Calculations have started", "This may take a while, and for now there is no way out. \n Keep an eye on the console for more info.")
+
+
+
+
 
 
 
