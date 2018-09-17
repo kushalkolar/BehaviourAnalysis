@@ -33,13 +33,18 @@ class WaitingThread(QtCore.QThread):
 
 
 class DataHandler:
-    def __init__(self, path, calibration_factor = 0):
-
+    def __init__(self, path, selection = False,  calibration_factor = 0):
+        
         self.path = path
-        self.folders = [os.path.join(self.path, x) for x in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, x)) and "exp" in x.lower()]
+            
+        if selection:
+            self.folders = selection
+        else:
+            self.folders = [os.path.join(self.path, x) for x in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, x)) and "exp" in x.lower()]
+
+            
         self.calibration_factor = calibration_factor
-
-
+        
     def calculate_all_parameters(self):
         self.alive = True
         self.work_thread = Thread(target = self._start_subprocess)
@@ -57,8 +62,18 @@ class DataHandler:
             self.cpu = psutil.cpu_percent()
             done = len([os.path.join(root, f) for root, dirs, files in os.walk(self.path) for f in files if "dataframe" in f and os.path.getmtime(os.path.join(root, f)) > start_time])
             percentage_done = (done/to_do)* 100
+            try:
+                etc = time.strftime("%H:%M:%S", time.gmtime((self.elapsed/(percentage_done)*100) - self.elapsed))
+            except:
+                etc = time.strftime("%H:%M:%S", time.gmtime((self.elapsed/(0.0000001)*100) - self.elapsed))
 
-            sys.stdout.write("\rTime spent "+time.strftime('%H:%M:%S', time.gmtime(self.elapsed)) + "  CPU: "+str(self.cpu).zfill(4)+"%  Progress: ["+"#"*int(pb_length*(percentage_done/100))+"-"*int(pb_length-(pb_length*(percentage_done/100)))+"] "+str(np.round(percentage_done, 1))+"%    "+ str(done)+"/"+str(len(self.folders))+"      ")
+            sys.stdout.write("\rTime spent "+time.strftime('%H:%M:%S', time.gmtime(self.elapsed)) +
+                             " ETC: "+etc+
+                             " CPU: "+str(self.cpu).zfill(4)+
+                             "%  Progress: ["+"#"*int(pb_length*(percentage_done/100))+"-"*int(pb_length-(pb_length*(percentage_done/100)))+"] "+
+                             str(np.round(percentage_done, 1))+"%    "+
+                             str(done)+"/"+str(len(self.folders))+"      ")
+
             time.sleep(0.1)
         self.alive = False
         sys.stdout.write("\n Calculating Parameters Finished \n")
@@ -81,45 +96,72 @@ class DataHandler:
             print(e)
 
     def gather_common_dataframe(self):
-        metadataframes = [pd.read_csv(os.path.join(folder, "metadata.txt"), delimiter = "\t") for folder in self.folders for x in os.listdir(folder) if "dataframe" in x.lower()]
-        for df in tqdm(metadataframes, desc = "Gathering all individual metadataframes"):
-            to_drop = [x for x in df.columns if "unnamed" in x.lower()]
-            df.drop(to_drop, axis = 1, inplace = True)
+        # metadataframes = [pd.read_csv(os.path.join(folder, "metadata.txt"), delimiter = "\t") for folder in self.folders for x in os.listdir(folder) if "dataframe" in x.lower()]
+        # for df in tqdm(metadataframes, desc = "Gathering all individual metadataframes"):
+        #     to_drop = [x for x in df.columns if "unnamed" in x.lower()]
+        #     df.drop(to_drop, axis = 1, inplace = True)
+        #
+        # dataframes = [pd.read_csv(os.path.join(folder, x), delimiter = "\t") for folder in self.folders for x in os.listdir(folder) if "dataframe" in x.lower()]
+        #
+        # columns = []
+        # for df in tqdm(dataframes, desc = "Gathering all column descriptors"):
+        #     for col in df.columns:
+        #         if col != "X" or col != "Y" or col != "X_zero" or col != "Y_zero":
+        #             if col not in columns:
+        #                 columns.append(col)
+        #
+        # params = ["mean", "median", "min", "max"]
+        # col_dict = {}
+        # for param in params:
+        #     for col in columns:
+        #         col_dict[col+"_"+param] = []
+        #
+        # for df in tqdm(dataframes, desc = "Gathering all single-value and metadata descriptors"):
+        #     for col in columns:
+        #         col_dict[col+"_mean"].append(df[col].mean())
+        #         col_dict[col+"_median"].append(df[col].median())
+        #         col_dict[col+"_min"].append(df[col].min())
+        #         col_dict[col+"_max"].append(df[col].max())
 
-        dataframes = [pd.read_csv(os.path.join(folder, x), delimiter = "\t") for folder in self.folders for x in os.listdir(folder) if "dataframe" in x.lower()]
 
-        columns = []
-        for df in tqdm(dataframes, desc = "Gathering all column descriptors"):
-            for col in df.columns:
-                if col != "X" or col != "Y" or col != "X_zero" or col != "Y_zero":
-                    if col not in columns:
-                        columns.append(col)
+        """
+        FOLLOWING BLOCK IS PROGRESS ON IMPROVING THIS METHOD
+        """
+        metadataframes = []
+        for folder in tqdm([os.path.join(self.path, x) for x in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, x)) and "exp" in x.lower()], desc="Gathering all single-value and metadata descriptors"):
 
-        params = ["mean", "median", "min", "max"]
-        col_dict = {}
-        for param in params:
-            for col in columns:
-                col_dict[col+"_"+param] = []
+            for f in os.listdir(folder):
+                if "dataframe" in f.lower():
+                    df = pd.read_pickle(os.path.join(folder, f))
+                    metadataframe = pd.read_csv(os.path.join(folder, "metadata.txt"), delimiter="\t")
+                    for col in df.columns:
+                        if col not in ["X","Y","X_zero","Y_zero","time","Frame"]:
+                            metadataframe[col + "_mean"] = [df[col].mean()]
+                            metadataframe[col + "_median"] = [df[col].median()]
+                            metadataframe[col + "_min"] = [df[col].min()]
+                            metadataframe[col + "_max"] = [df[col].max()]
 
-        for df in tqdm(dataframes, desc = "Gathering all single-value and metadata descriptors"):
-            for col in columns:
-                col_dict[col+"_mean"].append(df[col].mean())
-                col_dict[col+"_median"].append(df[col].median())
-                col_dict[col+"_min"].append(df[col].min())
-                col_dict[col+"_max"].append(df[col].max())
+                    stims = pd.read_csv(os.path.join(folder, "stimuli_profile.txt"), delimiter="\t")
+                    metadataframe["stimuli"] = [len(stims)]
+                    metadataframe["stimuli_profile"] = [stims]
+                    metadataframe["temperaturepath"] = [os.path.join(folder, "logged_temperatures.txt")]
+                    metadataframes.append(metadataframe)
 
-        self.metadataframe = pd.concat(metadataframes, sort = True)
+
+
+        self.metadataframe = pd.concat(metadataframes, sort = True, ignore_index=True)
         to_drop = [x for x in self.metadataframe.columns if "unnamed" in x.lower()]
         self.metadataframe.drop(to_drop, axis=1, inplace=True)
-
-        for key in col_dict.keys():
-            self.metadataframe[key] = col_dict[key]
-
-        for folder in tqdm(self.folders, desc = "Adding Stimuli information to metadataframe"):
-            lightstim = pd.read_csv(os.path.join(folder))
-
-
         self.metadataframe.to_pickle(os.path.join(self.path, "dataframes\\common_data.pickle"))
+
+        # for key in col_dict.keys():
+        #     self.metadataframe[key] = col_dict[key]
+        #
+        # for folder in tqdm(self.folders, desc = "Adding Stimuli information to metadataframe"):
+        #     lightstim = pd.read_csv(os.path.join(folder))
+
+
+
 
 
 

@@ -101,17 +101,6 @@ def _calculate_parameters(folder):
 
                 spacer_frame = pd.DataFrame({"Frame": range(df.Frame.iloc[-1])})
                 df = pd.merge(spacer_frame, df, how="outer", on="Frame")
-
-                # try:
-                #     df = pd.merge_asof(left=df, right=temperatures, on="time", direction="nearest")
-                # except:
-                #     dummy_temps = np.zeros(len(df))
-                #     dummy_temps[:] = np.nan
-                #     df["temperature"] = dummy_temps
-                #     df["temperature2"] = dummy_temps
-                #     with open(os.path.join(folder,"nodice.txt"), "w") as nodicefile:
-                #         nodicefile.write("NODICESUCKER\n")
-
                 df["rho"], df["phi"] = cart2pol(df.X_zero.diff(), df.Y_zero.diff())
                 coords = np.hstack((df.X_zero.values.reshape(-1, 1), df.Y_zero.values.reshape(-1, 1)))
                 df["from_center"] = np.linalg.norm(np.array([0, 0]) - coords, axis=1)
@@ -134,8 +123,8 @@ def _calculate_parameters(folder):
                 to_drop = [x for x in df.columns if "unnamed" in x.lower()]
                 df.drop(to_drop, axis = 1, inplace = True)
 
-                savename = "dataframe_" + str(t) + ".txt"
-                df.to_csv(os.path.join(os.path.abspath(folder), savename), sep="\t")
+                savename = "dataframe_" + str(t) + ".pickle"
+                df.to_pickle(os.path.join(os.path.abspath(folder), savename))
 
                 if savename not in metadata.columns:
                     metadata["dataframepath"] = os.path.join(os.path.abspath(folder), savename)

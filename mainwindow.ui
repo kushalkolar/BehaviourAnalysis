@@ -27,6 +27,12 @@
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0" colspan="2">
          <widget class="QTreeWidget" name="treeWidgetProjectFolder">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectItems</enum>
+          </property>
           <property name="columnCount">
            <number>1</number>
           </property>
@@ -88,15 +94,30 @@
      <addaction name="actionScrape_New_Data"/>
      <addaction name="actionLoad_Existing_Dataset"/>
     </widget>
-    <addaction name="actionNew_Project"/>
+    <widget class="QMenu" name="menuProject_2">
+     <property name="title">
+      <string>Project...</string>
+     </property>
+     <addaction name="actionNew_Project"/>
+     <addaction name="actionLoad_Project"/>
+    </widget>
+    <addaction name="menuProject_2"/>
     <addaction name="menuAdd_To_Project"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
     </property>
+    <widget class="QMenu" name="menuCalculate">
+     <property name="title">
+      <string>Calculate...</string>
+     </property>
+     <addaction name="actionParameters_and_Metadata_for_all"/>
+     <addaction name="actionParameters_for_selection"/>
+     <addaction name="actionOnly_Metadata"/>
+    </widget>
     <addaction name="actionCenterfinding"/>
-    <addaction name="actionCalculate_Parameters"/>
+    <addaction name="menuCalculate"/>
    </widget>
    <addaction name="menuProject"/>
    <addaction name="menuTools"/>
@@ -122,11 +143,6 @@
     <string>Add to Prioject</string>
    </property>
   </action>
-  <action name="actionNew_Project">
-   <property name="text">
-    <string>New Project</string>
-   </property>
-  </action>
   <action name="actionScrape_New_Data">
    <property name="text">
     <string>Scrape New Data</string>
@@ -145,9 +161,39 @@
     <string>Centerfinding</string>
    </property>
   </action>
-  <action name="actionCalculate_Parameters">
+  <action name="actionCalculate_Common_Metadata">
    <property name="text">
-    <string>Calculate Parameters</string>
+    <string>Calculate only Metadata</string>
+   </property>
+  </action>
+  <action name="actionbanana">
+   <property name="text">
+    <string>banana</string>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+  </action>
+  <action name="actionLoad_Project">
+   <property name="text">
+    <string>Load Project</string>
+   </property>
+  </action>
+  <action name="actionParameters_and_Metadata_for_all">
+   <property name="text">
+    <string>Parameters for all</string>
+   </property>
+  </action>
+  <action name="actionParameters_for_selection">
+   <property name="text">
+    <string>Parameters for selection</string>
+   </property>
+  </action>
+  <action name="actionOnly_Metadata">
+   <property name="text">
+    <string>Only Metadata</string>
    </property>
   </action>
  </widget>
