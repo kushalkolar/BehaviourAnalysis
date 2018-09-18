@@ -144,6 +144,7 @@ if __name__ == "__main__":
     with open(pickle_file, "rb") as f:
         to_do = pickle.load(f)
     print("loaded pickle \n")
+    os.remove(pickle_file)
 
     to_do = [x for x in to_do if "exp" in x.lower()]
     p = multiprocessing.Pool(multiprocessing.cpu_count()-1)
