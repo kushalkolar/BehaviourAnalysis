@@ -146,6 +146,8 @@ class DataHandler:
                     metadataframe["stimuli_profile"] = [stims]
                     metadataframe["temperaturepath"] = [os.path.join(folder, "logged_temperatures.txt")]
                     metadataframes.append(metadataframe)
+                    if "crowdsize" not in metadataframe.columns:
+                        metadataframe["crowdsize"] = [int(folder.split("_")[3])]
 
 
 

@@ -116,7 +116,14 @@
      <addaction name="actionParameters_for_selection"/>
      <addaction name="actionOnly_Metadata"/>
     </widget>
-    <addaction name="actionCenterfinding"/>
+    <widget class="QMenu" name="menuCenterfinding">
+     <property name="title">
+      <string>Centerfinding</string>
+     </property>
+     <addaction name="actionCenterfinding_All"/>
+     <addaction name="actionCenterfinding_selection"/>
+    </widget>
+    <addaction name="menuCenterfinding"/>
     <addaction name="menuCalculate"/>
    </widget>
    <addaction name="menuProject"/>
@@ -153,14 +160,6 @@
     <string>Load Existing Dataset</string>
    </property>
   </action>
-  <action name="actionCenterfinding">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Centerfinding</string>
-   </property>
-  </action>
   <action name="actionCalculate_Common_Metadata">
    <property name="text">
     <string>Calculate only Metadata</string>
@@ -194,6 +193,16 @@
   <action name="actionOnly_Metadata">
    <property name="text">
     <string>Only Metadata</string>
+   </property>
+  </action>
+  <action name="actionCenterfinding_All">
+   <property name="text">
+    <string>Centerfinding All</string>
+   </property>
+  </action>
+  <action name="actionCenterfinding_selection">
+   <property name="text">
+    <string>Centerfinding Selection</string>
    </property>
   </action>
  </widget>

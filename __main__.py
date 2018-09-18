@@ -53,11 +53,13 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.treeWidgetDataFolder.itemDoubleClicked.connect(self.item_double_clicked)
         self.ui.treeWidgetProjectFolder.itemDoubleClicked.connect(self.item_double_clicked)
 
-        self.ui.actionCenterfinding.triggered.connect(self.open_centerfinding_window)
+        self.ui.actionCenterfinding_All.triggered.connect(lambda: self.open_centerfinding_window(mode = "all"))
+        self.ui.actionCenterfinding_selection.triggered.connect(lambda: self.open_centerfinding_window(mode="selection"))
+        
 
         self.ui.actionParameters_and_Metadata_for_all.triggered.connect(lambda: self.calculate_parameters(mode = "all"))
         self.ui.actionParameters_for_selection.triggered.connect(lambda: self.calculate_parameters(mode = "selection"))
-        self.ui.actionCalculate_Common_Metadata.triggered.connect(self.calculate_metadata)
+        self.ui.actionOnly_Metadata.triggered.connect(self.calculate_metadata)
         self.ui.actionLoad_Project.triggered.connect(self.load_project)
         self.ui.actionLoad_Existing_Dataset.triggered.connect(self.load_project_to_add)
 
@@ -129,7 +131,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                         elif "arena.txt" in f.lower():
                             arena = os.path.join(root, f)
                         elif "tracking" in f.lower() and "realspace" not in f.lower():
-                            tracking  = os.path.join(root, f)
+                            try:
+                                with open(os.path.join(root, f), "r") as tracking_file_to_read:
+                                    lines = tracking_file_to_read.readlines()
+                                    if len(lines) <= 1:
+                                        tracking = "None"
+
+                                    else:
+                                        tracking = os.path.join(root, f)
+                            except:
+                                tracking = "None"
 
                 all_files_there = True
                 for f in [stimuli_profile, metadata, temperature, arena, tracking]:
@@ -148,7 +159,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     with open(os.path.join(newdir, "path_to_raw_data.txt"), "w") as filename:
                         filename.write(d)
                 else:
-                    print("Not all files present for ", d)
+                    print("\nNot all files present for ", d, "\n")
             except Exception as e:
                 sys.stdout.write("\n"+e)
         self.update_tree(0)
@@ -167,8 +178,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             for i in range(root.childCount()):
                 item = root.child(i)
                 listed_dir = " ".join(os.listdir(item.text(1)))
-                if "center" in listed_dir or "dataframe" in listed_dir:
+                if "center" in listed_dir and "dataframe" not in listed_dir:
                     item.setBackground(0, QtGui.QColor("lightyellow"))
+                if "center" not in listed_dir and "dataframe" in listed_dir:
+                    item.setBackground(0, QtGui.QColor("lightblue"))
                 if "center" in listed_dir and "dataframe" in listed_dir:
                     item.setBackground(0, QtGui.QColor("lightgreen"))
                     
@@ -215,8 +228,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             print(e)
             print("No action connected to files with this extension")
 
-    def open_centerfinding_window(self):
-        self.centerfinding_window = CenterFindingWindow(data_path = self.data_path, project_path = self.project_path)
+    def open_centerfinding_window(self, mode = "all"):
+        if mode == "all":
+            root = self.ui.treeWidgetProjectFolder.invisibleRootItem()
+            selection = [root.child(i) for i in range(root.childCount()) if root.child(i).text(0) != "dataframes"]
+            
+        else:
+            selection = self.ui.treeWidgetProjectFolder.selectedItems()
+#        self.centerfinding_window = CenterFindingWindow(data_path = self.data_path, project_path = self.project_path)
+
+        self.centerfinding_window = CenterFindingWindow(project_path= self.project_path, selection=selection)
         self.centerfinding_window.show()
 
     def calculate_parameters(self, mode):

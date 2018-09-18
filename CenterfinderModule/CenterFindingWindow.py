@@ -19,16 +19,23 @@ from tqdm import tqdm
 
 
 class CenterFindingWindow(QtWidgets.QWidget):
-    def __init__(self, parent = None, *args, data_path, project_path):
+    def __init__(self, parent = None, *args, data_path = False, project_path, selection = False):
         QtWidgets.QWidget.__init__(self, parent, *args)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         self.setWindowTitle("CenterFinder")
         self.setWindowIcon(QtGui.QIcon("icons/centerfinder.png"))
         self.data_path = data_path
+        if self.data_path == False:
+            self.data_path = QtWidgets.QFileDialog.getExistingDirectory(caption = "Select directory or drive that contains the video files you are working with")
+        
+        self.all_videos = [os.path.join(root, f) for root, dirs, files in os.walk(self.data_path) for f in files if ".avi" in f]
+    
         self.project_path = project_path
         self.vid_dict = {}
         self.videos_done = []
+        
+        self.selection = selection
 
         self.ui.comboBoxThresholdMethod.addItem("NONE")
         self.ui.comboBoxThresholdMethod.addItem("BINARY")
@@ -47,17 +54,22 @@ class CenterFindingWindow(QtWidgets.QWidget):
         self.check_thresholding_method(self.ui.comboBoxThresholdMethod.currentText())
         self.counter = 0
 
-        for root, dirs, files in os.walk(self.data_path):
-            for f in files:
-                if ".avi" in f.lower():
-                    if "inverted" in f.lower():
-                        destination_path = os.path.join(self.project_path, "Exp_" + f[:-13])
-                    else:
-                        destination_path = os.path.join(self.project_path, "Exp_" + f)
-                        destination_path = destination_path.rstrip(".avi")
-                    if os.path.exists(destination_path):
-                        self.vid_dict[f] = os.path.join(root, f)
-                        self.ui.listWidgetVideos.addItem(f)
+        for item in self.selection:
+            to_add = QtGui.QListWidgetItem(item.text(0))
+            to_add.setData(1,item.text(1))
+            self.ui.listWidgetVideos.addItem(to_add)
+        
+#        for root, dirs, files in os.walk(self.data_path):
+#            for f in files:
+#                if ".avi" in f.lower():
+#                    if "inverted" in f.lower():
+#                        destination_path = os.path.join(self.project_path, "Exp_" + f[:-13])
+#                    else:
+#                        destination_path = os.path.join(self.project_path, "Exp_" + f)
+#                        destination_path = destination_path.rstrip(".avi")
+#                    if os.path.exists(destination_path):
+#                        self.vid_dict[f] = os.path.join(root, f)
+#                        self.ui.listWidgetVideos.addItem(f)
 
     def check_thresholding_method(self, text):
         if text.lower() == "none":
@@ -67,19 +79,24 @@ class CenterFindingWindow(QtWidgets.QWidget):
 
 
     def find_video_center(self):
-        vid = self.ui.listWidgetVideos.currentItem().text()
-        item = self.ui.listWidgetVideos.findItems(vid, QtCore.Qt.MatchExactly)[0]
-        print(vid)
+        destination_path = self.ui.listWidgetVideos.currentItem().data(1)
+        path_to_raw_data = os.path.join(destination_path, "path_to_raw_data.txt")
+        with open(path_to_raw_data, "r") as f:
+            path_to_raw_data = f.readlines()[0]
+        vid = [os.path.join(path_to_raw_data, x) for x in os.listdir(path_to_raw_data) if ".avi" in x][0]
+#        vid = self.ui.listWidgetVideos.currentItem().text()
+#        item = self.ui.listWidgetVideos.findItems(vid, QtCore.Qt.MatchExactly)[0]
+#        print(vid)
 
         try:
-            circles = self.find_center(self.vid_dict[vid])
+            circles = self.find_center(vid)
             x,y,r = circles
 
-            if "inverted" in vid.lower():
-                destination_path = os.path.join(self.project_path, "Exp_"+vid[:-13])
-            else:
-                destination_path = os.path.join(self.project_path, "Exp_" + vid)
-                destination_path = destination_path.rstrip(".avi")
+#            if "inverted" in vid.lower():
+#                destination_path = os.path.join(self.project_path, "Exp_"+vid[:-13])
+#            else:
+#                destination_path = os.path.join(self.project_path, "Exp_" + vid)
+#                destination_path = destination_path.rstrip(".avi")
 
             if not os.path.exists(destination_path):
                 print("No path exists for ", vid)
@@ -88,12 +105,12 @@ class CenterFindingWindow(QtWidgets.QWidget):
                 f.write("X\tY\tR\n")
                 for param in [x,y,r]:
                     f.write(str(param)+"\t")
-            item.setBackground(QtGui.QColor("lightgreen"))
+            self.ui.listWidgetVideos.currentItem().setBackground(QtGui.QColor("lightgreen"))
             self.corner_correction(destination_path)
             self.videos_done.append(vid)
         except Exception as e:
             print(e)
-            item.setBackground(QtGui.QColor("red"))
+            self.ui.listWidgetVideos.currentItem().setBackground(QtGui.QColor("red"))
 
 
 
