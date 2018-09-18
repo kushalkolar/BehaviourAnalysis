@@ -59,6 +59,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
         self.ui.actionParameters_and_Metadata_for_all.triggered.connect(lambda: self.calculate_parameters(mode = "all"))
         self.ui.actionParameters_for_selection.triggered.connect(lambda: self.calculate_parameters(mode = "selection"))
+        self.ui.actionMissing_Parameter.triggered.connect(lambda: self.calculate_parameters(mode = "missing"))
         self.ui.actionOnly_Metadata.triggered.connect(self.calculate_metadata)
         self.ui.actionLoad_Project.triggered.connect(self.load_project)
         self.ui.actionLoad_Existing_Dataset.triggered.connect(self.load_project_to_add)
@@ -134,7 +135,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                             try:
                                 with open(os.path.join(root, f), "r") as tracking_file_to_read:
                                     lines = tracking_file_to_read.readlines()
-                                    if len(lines) <= 1:
+                                    if len(lines) <= 100:
                                         tracking = "None"
 
                                     else:
@@ -244,6 +245,14 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         if mode == "selection":
             selection = [item.text(1) for item in  self.ui.treeWidgetProjectFolder.selectedItems()]
             self.datahandler = DataHandler(path = self.project_path, selection= selection)
+        elif mode == "missing":
+            selection = []
+            root = self.ui.treeWidgetProjectFolder.invisibleRootItem()
+            for i in range(root.childCount()):
+                item = root.child(i)
+                if "dataframe" not in " ".join(os.listdir(item.text(1))):
+                    selection.append(item.text(1))
+            self.datahandler = DataHandler(path=self.project_path, selection=selection)
         else:
             self.datahandler = DataHandler(self.project_path)
         self.datahandler.calculate_all_parameters()

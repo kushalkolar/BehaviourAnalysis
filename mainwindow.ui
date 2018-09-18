@@ -114,6 +114,8 @@
      </property>
      <addaction name="actionParameters_and_Metadata_for_all"/>
      <addaction name="actionParameters_for_selection"/>
+     <addaction name="actionMissing_Parameter"/>
+     <addaction name="separator"/>
      <addaction name="actionOnly_Metadata"/>
     </widget>
     <widget class="QMenu" name="menuCenterfinding">
@@ -203,6 +205,11 @@
   <action name="actionCenterfinding_selection">
    <property name="text">
     <string>Centerfinding Selection</string>
+   </property>
+  </action>
+  <action name="actionMissing_Parameter">
+   <property name="text">
+    <string>Missing Parameters</string>
    </property>
   </action>
  </widget>

@@ -93,6 +93,8 @@ class Ui_MainWindow(object):
         self.actionCenterfinding_All.setObjectName("actionCenterfinding_All")
         self.actionCenterfinding_selection = QtWidgets.QAction(MainWindow)
         self.actionCenterfinding_selection.setObjectName("actionCenterfinding_selection")
+        self.actionMissing_Parameter = QtWidgets.QAction(MainWindow)
+        self.actionMissing_Parameter.setObjectName("actionMissing_Parameter")
         self.menuAdd_To_Project.addAction(self.actionScrape_New_Data)
         self.menuAdd_To_Project.addAction(self.actionLoad_Existing_Dataset)
         self.menuProject_2.addAction(self.actionNew_Project)
@@ -101,6 +103,8 @@ class Ui_MainWindow(object):
         self.menuProject.addAction(self.menuAdd_To_Project.menuAction())
         self.menuCalculate.addAction(self.actionParameters_and_Metadata_for_all)
         self.menuCalculate.addAction(self.actionParameters_for_selection)
+        self.menuCalculate.addAction(self.actionMissing_Parameter)
+        self.menuCalculate.addSeparator()
         self.menuCalculate.addAction(self.actionOnly_Metadata)
         self.menuCenterfinding.addAction(self.actionCenterfinding_All)
         self.menuCenterfinding.addAction(self.actionCenterfinding_selection)
@@ -141,4 +145,5 @@ class Ui_MainWindow(object):
         self.actionOnly_Metadata.setText(_translate("MainWindow", "Only Metadata"))
         self.actionCenterfinding_All.setText(_translate("MainWindow", "Centerfinding All"))
         self.actionCenterfinding_selection.setText(_translate("MainWindow", "Centerfinding Selection"))
+        self.actionMissing_Parameter.setText(_translate("MainWindow", "Missing Parameters"))
 
