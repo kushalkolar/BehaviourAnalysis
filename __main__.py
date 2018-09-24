@@ -23,9 +23,10 @@ from CenterfinderModule.CenterFindingWindow import CenterFindingWindow
 from CenterfinderModule.CenterFinder import Centerfinder
 from DataViewer import DataViewer
 from threading import Thread
-
+import pandas as pd
 import psutil
 import time
+from pandasviewer import PandasViewer
 ##Load creatorfile and 
 #qtCreatorFile = "mainwindow.ui" # Enter file here. 
 #Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -53,6 +54,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.treeWidgetDataFolder.itemDoubleClicked.connect(self.item_double_clicked)
         self.ui.treeWidgetProjectFolder.itemDoubleClicked.connect(self.item_double_clicked)
 
+        self.ui.treeWidgetProjectFolder.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.treeWidgetProjectFolder.customContextMenuRequested.connect(self.contextMenuEvent)
+
         self.ui.actionCenterfinding_All.triggered.connect(lambda: self.open_centerfinding_window(mode = "all"))
         self.ui.actionCenterfinding_selection.triggered.connect(lambda: self.open_centerfinding_window(mode="selection"))
         
@@ -63,6 +67,66 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.actionOnly_Metadata.triggered.connect(self.calculate_metadata)
         self.ui.actionLoad_Project.triggered.connect(self.load_project)
         self.ui.actionLoad_Existing_Dataset.triggered.connect(self.load_project_to_add)
+
+        """Actions"""
+        self.delAct = QtWidgets.QAction("&Delete", self, statusTip="Delete selected folder(s) along with contents from project. This does not delete anything from the raw data folder.",
+                triggered= self.delete)
+        self.redoCenterAct = QtWidgets.QAction("Redo Center", self, triggered=self.redoCenter)
+        self.redoParamsAct = QtWidgets.QAction("Redo Parameters", self, triggered=self.redoParams)
+        self.toCSVAct = QtWidgets.QAction("Convert to CSV", self, triggered=self.toCSV)
+        
+    def contextMenuEvent(self, event):
+        selection = self.ui.treeWidgetProjectFolder.selectedItems()
+        geometry = self.geometry()
+        x, y, w, h = geometry.getCoords()
+        print(x, y, event.x(), event.y())
+        menu = QtWidgets.QMenu(self)
+        location = QtCore.QPoint()
+        x += event.x()
+        y += event.y() + 80
+        location.setX(x)
+        location.setY(y)
+
+        if len(selection) == 1 and "pickle" in selection[0].text(1):
+            menu.addAction(self.toCSVAct)
+            menu.addAction(self.delAct)
+            menu.popup(location)
+        elif self.focusWidget() == self.ui.treeWidgetProjectFolder and len(selection) != 0:
+            menu.addAction(self.delAct)
+            menu.addAction(self.redoCenterAct)
+            menu.addAction(self.redoParamsAct)
+            menu.popup(location)
+
+    def delete(self):
+        selection = self.ui.treeWidgetProjectFolder.selectedItems()
+        for item in selection:
+            if "dataframes" in item.text(1) and os.path.isdir(item.text(1)):
+                print("Can't remove projects dataframes folder")
+            elif os.path.isdir(item.text(1)):
+                shutil.rmtree(item.text(1))
+                print("Deleting " + item.text(1))
+            elif os.path.exists(item.text(1)):
+                print("Deleting " + item.text(1))
+                os.remove(item.text(1))
+        self.update_tree(0)
+
+    def redoCenter(self):
+        self.open_centerfinding_window(mode="Selection")
+
+    def redoParams(self):
+        self.calculate_parameters(mode="selection")
+
+    def toCSV(self):
+        selection = self.ui.treeWidgetProjectFolder.selectedItems()[0].text(1)
+        try:
+            df = pd.read_pickle(selection)
+            path = selection.rstrip("pickle")
+            path += "txt"
+            df.to_csv(path, sep = "\t")
+        except Exception as e:
+            print(e)
+        self.update_tree(0)
+        
 
     def load_project(self):
         self.project_path = QtWidgets.QFileDialog.getExistingDirectory(caption="Choose a project to load")
@@ -223,8 +287,12 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             elif text.endswith(".txt"):
                 os.popen("notepad "+text)
             elif text.endswith(".pickle"):
-                self.dv = DataViewer(df_path = text)
-                self.dv.show()
+                self.pv = PandasViewer(df = pd.read_pickle(text))
+                self.pv.setWindowTitle("Data Explorer")
+                self.pv.setWindowIcon(QtGui.QIcon("icons/pickle.png"))
+                self.pv.show()
+#                self.dv = DataViewer(df_path = text)
+#                self.dv.show()
         except Exception as e:
             print(e)
             print("No action connected to files with this extension")
@@ -259,8 +327,13 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         QtWidgets.QMessageBox.warning(self, "Calculations have started", "This may take a while, and for now there is no way out. \n Keep an eye on the console for more info.")
 
     def calculate_metadata(self):
-        self.datahandler = DataHandler(self.project_path)
-        self.datahandler.gather_common_dataframe()
+        try:
+            if not os.path.exists(os.path.join(self.project_path, "dataframes")):
+                os.mkdir(os.path.join(self.project_path, "dataframes"))
+            self.datahandler = DataHandler(self.project_path)
+            self.datahandler.gather_common_dataframe()
+        except Exception as e:
+            print(e)
 
 
 

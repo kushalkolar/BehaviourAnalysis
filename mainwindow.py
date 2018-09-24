@@ -24,6 +24,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.treeWidgetProjectFolder = QtWidgets.QTreeWidget(self.tab)
+        self.treeWidgetProjectFolder.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
         self.treeWidgetProjectFolder.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.treeWidgetProjectFolder.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.treeWidgetProjectFolder.setColumnCount(1)

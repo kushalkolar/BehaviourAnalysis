@@ -131,7 +131,7 @@ class DataHandler:
         for folder in tqdm([os.path.join(self.path, x) for x in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, x)) and "exp" in x.lower()], desc="Gathering all single-value and metadata descriptors"):
 
             for f in os.listdir(folder):
-                if "dataframe" in f.lower():
+                if "dataframe" in f.lower() and "pickle" in f.lower():
                     df = pd.read_pickle(os.path.join(folder, f))
                     metadataframe = pd.read_csv(os.path.join(folder, "metadata.txt"), delimiter="\t")
                     for col in df.columns:
@@ -154,6 +154,8 @@ class DataHandler:
         self.metadataframe = pd.concat(metadataframes, sort = True, ignore_index=True)
         to_drop = [x for x in self.metadataframe.columns if "unnamed" in x.lower()]
         self.metadataframe.drop(to_drop, axis=1, inplace=True)
+        if not os.path.exists(os.path.join(self.path, "dataframes")):
+            os.mkdir(os.path.join(self.path,  "dataframes"))
         self.metadataframe.to_pickle(os.path.join(self.path, "dataframes\\common_data.pickle"))
 
         # for key in col_dict.keys():
