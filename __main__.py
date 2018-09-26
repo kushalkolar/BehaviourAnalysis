@@ -18,15 +18,14 @@ import pyqtgraph
 import sys, os, shutil
 from distutils.dir_util import copy_tree
 from tqdm import tqdm
-from supportclasses import DataHandler, WaitingThread
+from DataHandling.supportclasses import DataHandler, WaitingThread
 from CenterfinderModule.CenterFindingWindow import CenterFindingWindow
 from CenterfinderModule.CenterFinder import Centerfinder
-from DataViewer import DataViewer
+
 from threading import Thread
 import pandas as pd
-import psutil
 import time
-from pandasviewer import PandasViewer
+from DataViewerModule.pandasviewer import PandasViewer
 ##Load creatorfile and 
 #qtCreatorFile = "mainwindow.ui" # Enter file here. 
 #Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -68,7 +67,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.actionLoad_Project.triggered.connect(self.load_project)
         self.ui.actionLoad_Existing_Dataset.triggered.connect(self.load_project_to_add)
 
-        """Actions"""
+        """
+        Actions
+        """
         self.delAct = QtWidgets.QAction("&Delete", self, statusTip="Delete selected folder(s) along with contents from project. This does not delete anything from the raw data folder.",
                 triggered= self.delete)
         self.redoCenterAct = QtWidgets.QAction("Redo Center", self, triggered=self.redoCenter)
