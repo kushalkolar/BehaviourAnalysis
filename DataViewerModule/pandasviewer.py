@@ -238,13 +238,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
             self.set_data(self.ui.tableWidgetSelectedData, self.df_selection_rows)
         else:
             self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
-            
-        filtername = col
-        x = 1
-        while filtername in self.filters.keys():
-            filtername += str(x).zfill(2)
-            x+=1
-        self.filters[filtername] = (col, self.radioButtonInclude.isChecked(), selection)
+
 
     def apply_filter(self):
         self.create_filter()
@@ -256,7 +250,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         
         
     def save_selection(self, as_type):
-        filename = QtWidgets.QFileDialog.getSaveFileName()
+        filename = QtWidgets.QFileDialog.getSaveFileName()[0]
         if as_type == "csv":
             if not filename.endswith(".txt"):
                 filename += ".txt"
@@ -265,7 +259,8 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
             if not filename.endswith(".pickle"):
                 filename += ".pickle"
                 self.df_selection.to_pickle(filename)
-        
+        print(filename)
+
     def update_plotting_ui(self):
         self.ui.groupBoxPlotting.setVisible(True)
         for box in [self.ui.comboBoxXData, self.ui.comboBoxYData]:
