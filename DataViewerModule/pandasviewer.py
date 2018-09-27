@@ -1,17 +1,31 @@
 import pandas as pd
 import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
-from pandasviewer_ui import Ui_Form
-from PlottingModule.PlottingClasses import PlotWidget
+from DataViewerModule.pandasviewer_mainwindow import Ui_MainWindow
+from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
 import sys
 import ast
 
-class PandasViewer(QtWidgets.QWidget):
-    def __init__(self, parent = None,*args, df):
-        QtWidgets.QWidget.__init__(self, parent, *args)
-        self.ui = Ui_Form()
+class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
+    def __init__(self, parent = None,*args, df = "none"):
+        QtGui.QMainWindow.__init__(self)
+        Ui_MainWindow.__init__(self)
+        
+        self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.df = df   
+        self.show()
+        try:
+            if type(df) == str:
+                if not df.endswith("pickle"):
+                    self.df = pd.read_csv(df, delimiter= "\t")
+                else:
+                    self.df = pd.read_pickle(df)
+            elif type(df) == pd.core.frame.DataFrame:
+                self.df = df
+        except Exception as e:
+            self.df = pd.DataFrame()
+            # QtWidgets.QMessageBox.warning(self, "Could not open DataFrame", str(e))
+            
         self.set_data(self.ui.tableWidgetAllData, self.df)
         self.set_column_widget()
         
@@ -31,7 +45,10 @@ class PandasViewer(QtWidgets.QWidget):
         self.ui.tableWidgetSelectedData.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.tableWidgetSelectedData.customContextMenuRequested.connect(self.contextMenuEvent_SelectedData)
 
-        self.toCSVAct = QtWidgets.QAction("&Save Selection to CSV", self, triggered = self.save_selection_to_csv)
+        self.ui.actionLoad_Dataset_into_Viewer.triggered.connect(self.load_dataset)
+        self.ui.action_as_CSV.triggered.connect(lambda: self.save_selection(as_type = "csv"))
+        self.ui.action_as_Pickle.triggered.connect(lambda: self.save_selection(as_type = "pickle"))
+        self.toCSVAct = QtWidgets.QAction("&Save Selection to CSV", self, triggered = lambda: self.save_selection(as_type = "csv"))
 
         self.ui.groupBoxPlotting.setVisible(False)
         self.ui.framePlotWidget.setLayout(QtWidgets.QVBoxLayout())
@@ -47,31 +64,41 @@ class PandasViewer(QtWidgets.QWidget):
 
         self.removeFilteract = QtWidgets.QAction("&Remove Selected Filter(s)", self, triggered = self.remove_filters)
 
-    def contextMenuEvent_SelectedData(self, event):
-        geometry = self.geometry()
-        x, y, w, h = geometry.getCoords()
-        menu = QtWidgets.QMenu(self)
-        location = QtCore.QPoint()
-        x += event.x() + 200
-        y += event.y() +50
-        location.setX(x)
-        location.setY(y)
+        self.ui.groupBoxPlotting.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.groupBoxPlotting.customContextMenuRequested.connect(self.contextMenuEvent_PlottingMenu)
+        self.updatePlottingUIact = QtWidgets.QAction("&Update...", self, triggered = self.update_plotting_ui)
 
+    def contextMenuEvent_SelectedData(self, event):
+        menu = QtWidgets.QMenu(self)
         menu.addAction(self.toCSVAct)
-        menu.popup(location)
+        menu.popup(self.ui.tableWidgetSelectedData.mapToGlobal(event))
     
     def contextMenuEvent_AppliedFilters(self, event):
-        geometry = self.geometry()
-        x, y, w, h = geometry.getCoords()
         menu = QtWidgets.QMenu(self)
-        location = QtCore.QPoint()
-        x += event.x() + 200
-        y += event.y() +50
-        location.setX(x)
-        location.setY(y)
-
         menu.addAction(self.removeFilteract)
-        menu.popup(location)
+        menu.popup(self.ui.listWidgetAppliedFilters.mapToGlobal(event))
+
+    def contextMenuEvent_PlottingMenu(self, event):
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(self.updatePlottingUIact)
+        menu.popup(self.ui.groupBoxPlotting.mapToGlobal(event))
+
+    def load_dataset(self):
+        path = QtWidgets.QFileDialog.getOpenFileName()[0]
+        self.filters = {}
+        try:
+            if type(path) == str:
+                if not path.endswith("pickle"):
+                    self.df = pd.read_csv(path, delimiter="\t")
+                else:
+                    self.df = pd.read_pickle(path)
+        except Exception as e:
+            print(e)
+        self.df_selection = pd.DataFrame()
+        self.set_data(self.ui.tableWidgetAllData, self.df)
+        self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
+        self.set_column_widget()
+
 
     def set_data(self, tableWidget, df):
         if "index" not in df.columns:
@@ -180,10 +207,9 @@ class PandasViewer(QtWidgets.QWidget):
                     
     
     def remove_filters(self):
-        filters_to_remove = self.ui.listWidgetAppliedFilters.selectedItems()[0].text()
-        print("Removing :", filters_to_remove)
-        for filt in filters_to_remove:
-            self.filters.pop(filt)
+        filter_to_remove = self.ui.listWidgetAppliedFilters.selectedItems()[0].text()
+        print("Removing :", filter_to_remove)
+        self.filters.pop(filter_to_remove)
         self.update_selected_data()           
     
     def row_selection(self):
@@ -221,7 +247,6 @@ class PandasViewer(QtWidgets.QWidget):
         self.filters[filtername] = (col, self.radioButtonInclude.isChecked(), selection)
 
     def apply_filter(self):
-#        self.df_selection = self.df_selection_rows
         self.create_filter()
         self.apply_filters()
         self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
@@ -230,9 +255,16 @@ class PandasViewer(QtWidgets.QWidget):
         self.update_plotting_ui()
         
         
-    def save_selection_to_csv(self):
+    def save_selection(self, as_type):
         filename = QtWidgets.QFileDialog.getSaveFileName()
-        self.df_selection.to_csv(filename, sep = "\t")
+        if as_type == "csv":
+            if not filename.endswith(".txt"):
+                filename += ".txt"
+                self.df_selection.to_csv(filename, sep = "\t")
+        elif as_type == "pickle":
+            if not filename.endswith(".pickle"):
+                filename += ".pickle"
+                self.df_selection.to_pickle(filename)
         
     def update_plotting_ui(self):
         self.ui.groupBoxPlotting.setVisible(True)
@@ -243,10 +275,10 @@ class PandasViewer(QtWidgets.QWidget):
     def update_plot(self):
         self.plot.canvas.clear()
         plottype = self.ui.comboBoxPlotType.currentText()
+        x_data = self.ui.comboBoxXData.currentText()
+        y_data = self.ui.comboBoxYData.currentText()
         if plottype == "violinplot":
             ax = self.plot.canvas.figure.add_subplot(111)
-            x_data = self.ui.comboBoxXData.currentText()
-            y_data = self.ui.comboBoxYData.currentText()
             groups = self.df_selection[x_data].unique().tolist()
             to_plot = []
             for group in groups:
@@ -259,6 +291,22 @@ class PandasViewer(QtWidgets.QWidget):
                 ax.set_xlabel(x_data)
                 ax.set_ylabel(y_data)
                 self.plot.canvas.figure.tight_layout()
+                self.plot.canvas.draw()
             except:
                 pass
+        elif plottype == "lineplot":
+            ax = self.plot.canvas.figure.add_subplot(111)
+            ax.plot(self.df_selection[x_data], self.df_selection[y_data])
+            ax.set_xlabel(x_data)
+            ax.set_ylabel(y_data)
+            self.plot.canvas.figure.tight_layout()
+            self.plot.canvas.draw()
+
+        elif plottype == "scatterplot":
+            ax = self.plot.canvas.figure.add_subplot(111)
+            ax.scatter(self.df_selection[x_data], self.df_selection[y_data])
+            ax.set_xlabel(x_data)
+            ax.set_ylabel(y_data)
+            self.plot.canvas.figure.tight_layout()
+            self.plot.canvas.draw()
             

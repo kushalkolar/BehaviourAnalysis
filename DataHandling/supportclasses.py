@@ -90,7 +90,7 @@ class DataHandler:
             pickle.dump(self.folders, f)
         try:
             print("starting subprocess")
-            p = subprocess.Popen(["python", 'D:/AA GithubRepos/BehaviourAnalysis/work_process.py', pickle_path], stdin = subprocess.PIPE, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            p = subprocess.Popen(["python", 'DataHandling/work_process.py', pickle_path], stdin = subprocess.PIPE, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             p.communicate()
         except Exception as e:
             print(e)
