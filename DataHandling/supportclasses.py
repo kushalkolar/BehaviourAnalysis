@@ -150,6 +150,8 @@ class DataHandler:
                     if "crowdsize" not in metadataframe.columns:
                         metadataframe["crowdsize"] = [int(folder.split("_")[3])]
 
+                    if "exposture" in metadataframe.columns:
+                        metadataframe.rename(columns = {"exposture":"exposure"}, inplace = True)
 
 
         self.metadataframe = pd.concat(metadataframes, sort = True, ignore_index=True)
