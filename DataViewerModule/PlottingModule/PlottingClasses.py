@@ -44,6 +44,7 @@ class PlotCanvas(FigureCanvas):
 
 
 
+
 class PlotWidget(QtWidgets.QWidget):
     def __init__(self, parent = None):
         QtWidgets.QWidget.__init__(self)
@@ -59,4 +60,7 @@ class PlotWidget(QtWidgets.QWidget):
         ax.plot(data)
         self.canvas.draw()
         self.canvas.show()
+
+    def draw(self):
+        self.canvas.draw()
         

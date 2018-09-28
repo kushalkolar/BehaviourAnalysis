@@ -135,7 +135,7 @@ class DataHandler:
                     df = pd.read_pickle(os.path.join(folder, f))
                     metadataframe = pd.read_csv(os.path.join(folder, "metadata.txt"), delimiter="\t")
                     for col in df.columns:
-                        if col not in ["X","Y","X_zero","Y_zero","time","Frame"]:
+                        if col not in ["X","Y","X_zero","Y_zero","time","Frame", "stim_on"]:
                             metadataframe[col + "_mean"] = [df[col].mean()]
                             metadataframe[col + "_median"] = [df[col].median()]
                             metadataframe[col + "_min"] = [df[col].min()]

@@ -124,6 +124,14 @@ def _calculate_parameters(folder):
                 to_drop = [x for x in df.columns if "unnamed" in x.lower()]
                 df.drop(to_drop, axis = 1, inplace = True)
 
+                stims = pd.read_csv(os.path.join(folder, "stimuli_profile.txt"), delimiter = "\t")
+                if len(stims) > 0:
+                    df["stim_on"] = ["off" for x in range(len(df))]
+                    for ii in stims.index:
+                        time_on = stims.time_on[ii]
+                        time_off = stims.time_off[ii]
+                        df.loc[(df.time >= time_on) & (df.time <= time_off), "stim_on"] = stims.message_on[ii]
+
                 savename = "dataframe_" + str(t) + ".pickle"
                 df.to_pickle(os.path.join(os.path.abspath(folder), savename))
 

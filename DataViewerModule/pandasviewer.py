@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
+from pyqtgraph.console import ConsoleWidget
 from DataViewerModule.pandasviewer_mainwindow import Ui_MainWindow
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
 import sys
@@ -24,7 +25,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                 self.df = df
         except Exception as e:
             self.df = pd.DataFrame()
-            # QtWidgets.QMessageBox.warning(self, "Could not open DataFrame", str(e))
+            QtWidgets.QMessageBox.warning(self, "Could not open DataFrame", str(e))
             
         self.set_data(self.ui.tableWidgetAllData, self.df)
         self.set_column_widget()
@@ -67,6 +68,14 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.groupBoxPlotting.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.groupBoxPlotting.customContextMenuRequested.connect(self.contextMenuEvent_PlottingMenu)
         self.updatePlottingUIact = QtWidgets.QAction("&Update...", self, triggered = self.update_plotting_ui)
+
+        self.ui.comboBoxPlotType.currentTextChanged.connect(self.toggle_colorselection)
+        self.ui.comboBoxColorParam.setVisible(False)
+        self.ui.labelColorParam.setVisible(False)
+
+        self.ui.frameConsole.setLayout(QtWidgets.QVBoxLayout())
+        self.console = ConsoleWidget(namespace={"self":self})
+        self.ui.frameConsole.layout().addWidget(self.console)
 
     def contextMenuEvent_SelectedData(self, event):
         menu = QtWidgets.QMenu(self)
@@ -266,42 +275,85 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         for box in [self.ui.comboBoxXData, self.ui.comboBoxYData]:
             box.clear()
             box.addItems(self.df_selection.columns)
+        self.toggle_colorselection()
+
+    def toggle_colorselection(self, text = "None"):
+        if text == "None":
+            text = self.ui.comboBoxColorParam.currentText()
+        if "scatter" in text:
+            self.ui.comboBoxColorParam.setVisible(True)
+            self.ui.labelColorParam.setVisible(True)
+            self.ui.comboBoxColorParam.clear()
+            self.ui.comboBoxColorParam.addItems(self.df_selection.columns)
+        else:
+            self.ui.comboBoxColorParam.setVisible(False)
+            self.ui.labelColorParam.setVisible(False)
 
     def update_plot(self):
-        self.plot.canvas.clear()
-        plottype = self.ui.comboBoxPlotType.currentText()
-        x_data = self.ui.comboBoxXData.currentText()
-        y_data = self.ui.comboBoxYData.currentText()
-        if plottype == "violinplot":
-            ax = self.plot.canvas.figure.add_subplot(111)
-            groups = self.df_selection[x_data].unique().tolist()
-            to_plot = []
-            for group in groups:
-                to_plot.append(self.df_selection[y_data][self.df_selection[x_data] == group].values.tolist())
-            
-            ax.violinplot(to_plot)
-            try:
-                ax.set_xticks([x+1 for x in range(len(groups))])
-                ax.set_xticklabels(groups)
+        try:
+            self.plot.canvas.clear()
+            plottype = self.ui.comboBoxPlotType.currentText()
+            x_data = self.ui.comboBoxXData.currentText()
+            y_data = self.ui.comboBoxYData.currentText()
+            if plottype == "violinplot":
+                ax = self.plot.canvas.figure.add_subplot(111)
+                groups = self.df_selection[x_data].unique().tolist()
+                to_plot = []
+                for group in groups:
+                    to_plot.append(self.df_selection[y_data][self.df_selection[x_data] == group].dropna().values.tolist())
+
+                ax.violinplot(to_plot)
+                try:
+                    ax.set_xticks([x+1 for x in range(len(groups))])
+                    ax.set_xticklabels(groups)
+                    ax.set_xlabel(x_data)
+                    ax.set_ylabel(y_data)
+                    self.plot.canvas.figure.tight_layout()
+                    self.plot.canvas.draw()
+                except:
+                    pass
+            elif plottype == "lineplot":
+                ax = self.plot.canvas.figure.add_subplot(111)
+                ax.plot(self.df_selection[x_data], self.df_selection[y_data])
                 ax.set_xlabel(x_data)
                 ax.set_ylabel(y_data)
                 self.plot.canvas.figure.tight_layout()
                 self.plot.canvas.draw()
-            except:
-                pass
-        elif plottype == "lineplot":
-            ax = self.plot.canvas.figure.add_subplot(111)
-            ax.plot(self.df_selection[x_data], self.df_selection[y_data])
-            ax.set_xlabel(x_data)
-            ax.set_ylabel(y_data)
-            self.plot.canvas.figure.tight_layout()
-            self.plot.canvas.draw()
 
-        elif plottype == "scatterplot":
-            ax = self.plot.canvas.figure.add_subplot(111)
-            ax.scatter(self.df_selection[x_data], self.df_selection[y_data])
-            ax.set_xlabel(x_data)
-            ax.set_ylabel(y_data)
-            self.plot.canvas.figure.tight_layout()
-            self.plot.canvas.draw()
+            elif plottype == "scatterplot":
+                ax = self.plot.canvas.figure.add_subplot(111)
+                colorparam = self.ui.comboBoxColorParam.currentText()
+                try:
+                    ax.scatter(self.df_selection[x_data].dropna(), self.df_selection[y_data].dropna(),
+                                   c = self.df_selection.loc[self.df_selection[x_data].notnull(), colorparam])
+                except:
+                    try:
+                        progress = 0
+                        colordict = {}
+                        counter = 0
+                        progress +=1
+                        for x in self.df_selection[colorparam].unique():
+                            colordict[x] = counter
+                            counter+=1
+                        progress +=1
+                        colors = np.zeros(len(self.df_selection))
+                        progress +=1
+                        for key in colordict.keys():
+                            colors[self.df_selection.index[self.df_selection[colorparam] == key]] = colordict[key]
+                        progress +=1
+                        ax.scatter(self.df_selection[x_data], self.df_selection[y_data],
+                                   c=colors)
+                        progress += 1
+                        print(colordict)
+                    except Exception as e:
+                        print(progress, str(e))
+
+                ax.set_xlabel(x_data)
+                ax.set_ylabel(y_data)
+                self.plot.canvas.figure.tight_layout()
+                self.plot.canvas.draw()
+
+        except Exception as e:
+            e = str(e)
+            QtWidgets.QMessageBox.warning(self, "Error in plot", "It seems that you are making an impossible plot. Please look at your parameters. \n This is what the computer has to say: \n '"+e+"'")
             
