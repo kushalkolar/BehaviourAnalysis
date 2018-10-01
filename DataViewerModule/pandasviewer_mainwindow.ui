@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>628</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
            <string>All Columns</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QPushButton" name="pushButtonAddToSelection">
              <property name="text">
               <string>Add to Selection</string>
@@ -55,6 +55,18 @@
              <property name="selectionMode">
               <enum>QAbstractItemView::ExtendedSelection</enum>
              </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QTreeWidget" name="treeWidgetAllColums">
+             <property name="selectionMode">
+              <enum>QAbstractItemView::ExtendedSelection</enum>
+             </property>
+             <column>
+              <property name="text">
+               <string notr="true">1</string>
+              </property>
+             </column>
             </widget>
            </item>
           </layout>

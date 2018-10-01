@@ -15,6 +15,9 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.show()
+        
+        self.ui.treeWidgetAllColums.setVisible(False)
+        
         try:
             if type(df) == str:
                 if not df.endswith("pickle"):
@@ -25,7 +28,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                 self.df = df
         except Exception as e:
             self.df = pd.DataFrame()
-            QtWidgets.QMessageBox.warning(self, "Could not open DataFrame", str(e))
+#            QtWidgets.QMessageBox.warning(self, "Could not open DataFrame", str(e))
             
         self.set_data(self.ui.tableWidgetAllData, self.df)
         self.set_column_widget()
@@ -121,6 +124,20 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         
     def set_column_widget(self):
         self.ui.listWidgetAllColumns.addItems(self.df.columns)
+
+#THIS IS CODE TO SHOW COLUMNS IN A TREE WIDGET ITEM! SET VISIBLE TO FALSE IN __init__ TO SHOW THE WIDGET
+#        to_branch = list(set([x.split("_")[0] for  x in self.df.columns if len(x.split("_"))>1]))
+#        singles = list(set([x for x in self.df.columns if len(x.split("_")) == 1 and x not in to_branch]))
+#        
+#        for element in to_branch:
+#            parentItem = QtWidgets.QTreeWidgetItem(self.ui.treeWidgetAllColums, [element])
+#            to_add = [x for x in self.df.columns if x.startswith(element)]
+#            for item_to_add in to_add:
+#                item = QtWidgets.QTreeWidgetItem(parentItem, [item_to_add])
+#                item.setData(1,0,item_to_add)
+#        for single in singles:
+#            item = QtWidgets.QTreeWidgetItem(self.ui.treeWidgetAllColums, [single])
+#            item.setData(1,0,single)
 
     def add_to_selection(self):
         selection_to_add = [item.text() for item in self.ui.listWidgetAllColumns.selectedItems()]

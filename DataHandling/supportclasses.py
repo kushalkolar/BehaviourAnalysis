@@ -158,8 +158,8 @@ class DataHandler:
                                         delta_on = (df[col][(df["time"]>= time_on) & (df["time"] <= time_on+30)].mean())-(df[col][(df["time"]>= time_on - 30) & (df["time"] <= time_on)].mean())
                                         delta_off = (df[col][(df["time"]>= time_off) & (df["time"] <= time_off+30)].mean())-(df[col][(df["time"]>= time_off - 30) & (df["time"] <= time_off)].mean())
 
-                                        metadataframe[stimname+"_"+"deltaOn_"+col+"_"+str(counter).zfill(2)] = [delta_on]
-                                        metadataframe[stimname+"_"+"deltaOff_"+col+"_"+str(counter).zfill(2)] = [delta_off]
+                                        metadataframe["deltaOn_"+stimname+"_"+col+"_"+str(counter).zfill(2)] = [delta_on]
+                                        metadataframe["deltaOff_"+stimname+"_"+col+"_"+str(counter).zfill(2)] = [delta_off]
                                 counter+=1
                     except Exception as e:
                         print(e)
