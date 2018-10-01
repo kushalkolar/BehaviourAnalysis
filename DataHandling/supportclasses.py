@@ -141,8 +141,28 @@ class DataHandler:
                             metadataframe[col + "_min"] = [df[col].min()]
                             metadataframe[col + "_max"] = [df[col].max()]
 
-                    stims = pd.read_csv(os.path.join(folder, "stimuli_profile.txt"), delimiter="\t")
                     metadataframe["percentage_notnull"] = [len(df.X.notnull()) / len(df)]
+                    # metadataframe["percentage_of_expected_frames"] = [df.Frame[-1]/((metadataframe.duration) / metadataframe.framerate)]
+
+                    stims = pd.read_csv(os.path.join(folder, "stimuli_profile.txt"), delimiter="\t")
+
+                    try:
+                        if len(stims) > 0:
+                            counter = 1
+                            for ii in stims.index:
+                                time_on = stims.time_on[ii]
+                                time_off = stims.time_off[ii]
+                                stimname = stims.message_on[ii]
+                                for col in df.columns:
+                                    if col not in ["X", "Y", "X_zero", "Y_zero", "time", "Frame", "stim_on"]:
+                                        delta_on = (df[col][(df["time"]>= time_on) & (df["time"] <= time_on+30)].mean())-(df[col][(df["time"]>= time_on - 30) & (df["time"] <= time_on)].mean())
+                                        delta_off = (df[col][(df["time"]>= time_off) & (df["time"] <= time_off+30)].mean())-(df[col][(df["time"]>= time_off - 30) & (df["time"] <= time_off)].mean())
+
+                                        metadataframe[stimname+"_"+"deltaOn_"+col+"_"+str(counter).zfill(2)] = [delta_on]
+                                        metadataframe[stimname+"_"+"deltaOff_"+col+"_"+str(counter).zfill(2)] = [delta_off]
+                                counter+=1
+                    except Exception as e:
+                        print(e)
                     metadataframe["stimuli"] = [len(stims)]
                     metadataframe["stimuli_profile"] = [stims]
                     metadataframe["temperaturepath"] = [os.path.join(folder, "logged_temperatures.txt")]
@@ -152,6 +172,7 @@ class DataHandler:
 
                     if "exposture" in metadataframe.columns:
                         metadataframe.rename(columns = {"exposture":"exposure"}, inplace = True)
+
 
 
         self.metadataframe = pd.concat(metadataframes, sort = True, ignore_index=True)

@@ -331,19 +331,17 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                         progress = 0
                         colordict = {}
                         counter = 0
-                        progress +=1
                         for x in self.df_selection[colorparam].unique():
                             colordict[x] = counter
                             counter+=1
-                        progress +=1
-                        colors = np.zeros(len(self.df_selection))
-                        progress +=1
-                        for key in colordict.keys():
-                            colors[self.df_selection.index[self.df_selection[colorparam] == key]] = colordict[key]
-                        progress +=1
-                        ax.scatter(self.df_selection[x_data], self.df_selection[y_data],
-                                   c=colors)
-                        progress += 1
+                        print("Colordict populated")
+                        colors = [colordict[key] for key in self.df_selection[colorparam]]
+                        print(colors)
+                        x = self.df_selection[x_data]
+                        y = self.df_selection[y_data]
+                        print("XY data selected")
+                        ax.scatter(x, y,c=colors)
+
                         print(colordict)
                     except Exception as e:
                         print(progress, str(e))
