@@ -334,15 +334,10 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                         for x in self.df_selection[colorparam].unique():
                             colordict[x] = counter
                             counter+=1
-                        print("Colordict populated")
                         colors = [colordict[key] for key in self.df_selection[colorparam]]
-                        print(colors)
                         x = self.df_selection[x_data]
                         y = self.df_selection[y_data]
-                        print("XY data selected")
                         ax.scatter(x, y,c=colors)
-
-                        print(colordict)
                     except Exception as e:
                         print(progress, str(e))
 
