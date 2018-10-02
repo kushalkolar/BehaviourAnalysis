@@ -6,9 +6,11 @@ from DataViewerModule.pandasviewer_mainwindow import Ui_MainWindow
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
 import sys
 import ast
+import pickle
+import os
 
 class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
-    def __init__(self, parent = None,*args, df = "none"):
+    def __init__(self, parent = None,*args, df = "none", path = None):
         QtGui.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         
@@ -17,13 +19,14 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.show()
         
         self.ui.treeWidgetAllColums.setVisible(False)
-        
+        self.path = path
         try:
             if type(df) == str:
                 if not df.endswith("pickle"):
                     self.df = pd.read_csv(df, delimiter= "\t")
                 else:
                     self.df = pd.read_pickle(df)
+                self.path = os.path.dirname(df)
             elif type(df) == pd.core.frame.DataFrame:
                 self.df = df
         except Exception as e:
@@ -40,7 +43,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
 
         self.ui.comboBoxSelectedColumns.currentIndexChanged.connect(self.update_unique_values)
 
-        self.ui.pushButtonApplyFilters.clicked.connect(self.apply_filter)
+        self.ui.pushButtonApplyFilters.clicked.connect(self.apply_new_filter)
         self.ui.checkBoxUnique.clicked.connect(self.update_unique_values)
         self.ui.checkBoxSorting.clicked.connect(self.update_unique_values)
         self.ui.listWidgetUniqueValues.itemSelectionChanged.connect(self.row_selection)
@@ -67,6 +70,8 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.listWidgetAppliedFilters.customContextMenuRequested.connect(self.contextMenuEvent_AppliedFilters)
 
         self.removeFilteract = QtWidgets.QAction("&Remove Selected Filter(s)", self, triggered = self.remove_filters)
+        self.loadFiltersetact = QtWidgets.QAction("&Load Filterset", self, triggered = self.load_filterset)
+        self.saveFiltersetact = QtWidgets.QAction("&Save Filterset", self, triggered = self.save_filterset)
 
         self.ui.groupBoxPlotting.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.groupBoxPlotting.customContextMenuRequested.connect(self.contextMenuEvent_PlottingMenu)
@@ -87,7 +92,13 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
     
     def contextMenuEvent_AppliedFilters(self, event):
         menu = QtWidgets.QMenu(self)
-        menu.addAction(self.removeFilteract)
+        if len(self.ui.listWidgetAppliedFilters.selectedItems()) > 0:
+            menu.addAction(self.removeFilteract)
+            menu.addAction(self.saveFiltersetact)
+        selected_columns = [self.ui.listWidgetSelectedColumns.item(i).text() for i in range(self.ui.listWidgetSelectedColumns.count())]
+        if len(selected_columns) > 0:
+            menu.addAction(self.loadFiltersetact)
+
         menu.popup(self.ui.listWidgetAppliedFilters.mapToGlobal(event))
 
     def contextMenuEvent_PlottingMenu(self, event):
@@ -96,7 +107,8 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         menu.popup(self.ui.groupBoxPlotting.mapToGlobal(event))
 
     def load_dataset(self):
-        path = QtWidgets.QFileDialog.getOpenFileName()[0]
+        path = QtWidgets.QFileDialog.getOpenFileName(caption="Select a file (.pickle, or tab delimited txt", directory=self.path)[0]
+        self.path = os.path.dirname(path)
         self.filters = {}
         try:
             if type(path) == str:
@@ -123,6 +135,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                 tableWidget.setItem(i,j,QtWidgets.QTableWidgetItem(str(df.iloc[i,j])))
         
     def set_column_widget(self):
+        self.ui.listWidgetAllColumns.clear()
         self.ui.listWidgetAllColumns.addItems(self.df.columns)
 
 #THIS IS CODE TO SHOW COLUMNS IN A TREE WIDGET ITEM! SET VISIBLE TO FALSE IN __init__ TO SHOW THE WIDGET
@@ -196,12 +209,6 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
     def create_filter(self):
         col = self.ui.comboBoxSelectedColumns.currentText()
         filtername = col
-#        x = 1
-#        
-#        while filtername in self.filters.keys():
-#            filtername += str(x).zfill(2)
-#            x+=1
-        
         include = self.ui.radioButtonInclude.isChecked()
         
         if self.df[col].dtype == "O":
@@ -209,7 +216,10 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
             
         else:
             selection = [ast.literal_eval(x.data(0)) for x in self.ui.listWidgetUniqueValues.selectedItems()]
-                
+
+        if col in self.filters.keys() and include == False:
+            prev_selection = self.filters[col][2]
+            selection = selection + prev_selection
         self.filters[filtername] = (col, include, selection)
     
     
@@ -237,7 +247,22 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         print("Removing :", filter_to_remove)
         self.filters.pop(filter_to_remove)
         self.update_selected_data()           
-    
+
+
+    def load_filterset(self):
+        path_to_filter = QtWidgets.QFileDialog.getOpenFileName(directory=self.path)[0]
+        with open(path_to_filter,"rb") as f:
+            self.filters = pickle.load(f)
+        self.apply_filters()
+
+    def save_filterset(self):
+        savepath = QtWidgets.QFileDialog.getSaveFileName(directory=self.path)[0]
+        if not savepath.endswith(".flt"):
+            savepath+=".flt"
+        with open(savepath, "wb") as f:
+            pickle.dump(self.filters, f)
+
+
     def row_selection(self):
         col = self.ui.comboBoxSelectedColumns.currentText()
         
@@ -266,7 +291,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
             self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
 
 
-    def apply_filter(self):
+    def apply_new_filter(self):
         self.create_filter()
         self.apply_filters()
         self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
@@ -276,7 +301,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         
         
     def save_selection(self, as_type):
-        filename = QtWidgets.QFileDialog.getSaveFileName()[0]
+        filename = QtWidgets.QFileDialog.getSaveFileName(caption= "Select Saving Location", directory=self.path)[0]
         if as_type == "csv":
             if not filename.endswith(".txt"):
                 filename += ".txt"

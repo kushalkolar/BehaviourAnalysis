@@ -54,13 +54,6 @@ class PlotWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.toolbar)
         self.layout().addWidget(self.canvas)
 
-    def plot(self, data):
-        ax = self.canvas.figure.add_subplot(111)
-        ax.set_title("PLOTTING!")
-        ax.plot(data)
-        self.canvas.draw()
-        self.canvas.show()
-
     def draw(self):
         self.canvas.draw()
         

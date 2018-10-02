@@ -142,7 +142,7 @@ class DataHandler:
                             metadataframe[col + "_max"] = [df[col].max()]
 
                     metadataframe["percentage_notnull"] = [len(df.X.notnull()) / len(df)]
-                    # metadataframe["percentage_of_expected_frames"] = [df.Frame[-1]/((metadataframe.duration) / metadataframe.framerate)]
+
 
                     stims = pd.read_csv(os.path.join(folder, "stimuli_profile.txt"), delimiter="\t")
 
@@ -163,6 +163,7 @@ class DataHandler:
                                 counter+=1
                     except Exception as e:
                         print(e)
+
                     metadataframe["stimuli"] = [len(stims)]
                     metadataframe["stimuli_profile"] = [stims]
                     metadataframe["temperaturepath"] = [os.path.join(folder, "logged_temperatures.txt")]
