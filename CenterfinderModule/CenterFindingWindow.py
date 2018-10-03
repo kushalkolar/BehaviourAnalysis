@@ -258,3 +258,5 @@ class CenterFindingWindow(QtWidgets.QWidget):
             self.alive = False
             self.ui.pushButtonStartStop.setText("Start")
             self.ui.pushButtonStartStop.setChecked(False)
+            self.ui.checkBoxOverwrite.setChecked(False)
+            self.toggle_overwrite()
