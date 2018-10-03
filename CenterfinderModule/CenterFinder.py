@@ -30,7 +30,7 @@ class Centerfinder:
         self.weight = weight
         self.gamma = gamma
     
-    def find(self,video, show_result = False):
+    def find(self,video):
         
         start = time.time()
         cap = cv2.VideoCapture(video)
@@ -45,21 +45,11 @@ class Centerfinder:
             ret, nframe = cap.read()
             maxframe = maxframe + nframe
         
-
-
         gray, circles = self.detect_circles(maxframe)
         gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
 
-        if circles == "none":
-            im = np.hstack([gray, frame])
-            cv2.namedWindow("image", cv2.WINDOW_NORMAL)
-            cv2.resizeWindow("image", 900, 600)
-            cv2.imshow("image", im)
-            #            cv2.imwrite("D:\Circles\Circle_"+str(self.counter).zfill(3)+".jpg", im)
-            self.counter += 1
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                cv2.destroyAllWindows()
-            return("none")
+        if type(circles) == type("none"):
+            return("none", gray, frame)
         else:
             x, y, r  = circles
             x_av.append(x)
@@ -70,26 +60,12 @@ class Centerfinder:
             y = int(np.mean(y_av))
             r = int(np.mean(r_av))
 
-            if show_result:
-                for im in [gray, frame]:
-                    cv2.circle(im,(x,y),r,(0,255,0),5)
-                    # draw the center of the circle
-                    cv2.circle(im,(x,y),2,(0,0,255),10)
+            self.counter+=1
 
-                im = np.hstack([gray, frame])
-                cv2.namedWindow("image", cv2.WINDOW_NORMAL)
-                cv2.resizeWindow("image", 900,600)
-                cv2.imshow("image", im)
-    #            cv2.imwrite("D:\Circles\Circle_"+str(self.counter).zfill(3)+".jpg", im)
-                self.counter+=1
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    cv2.destroyAllWindows()
-    #            plt.imshow(im, cmap = "gray")
-    #            plt.show()
             end = time.time()
             print("Time taken: "+ str(end - start))
             print(x,y,r)
-            return((x,y,r))
+            return((x,y,r), gray, frame)
 
 
     
