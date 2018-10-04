@@ -41,6 +41,9 @@
         </item>
         <item row="11" column="0">
          <widget class="QPushButton" name="pushButtonRedoCenter">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Redo current analysis.&lt;/p&gt;&lt;p&gt;Overwrite determined by checkbox.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Shortkey: &amp;lt;Shift&amp;gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Redo</string>
           </property>
@@ -231,6 +234,9 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Overwrites current result.&lt;/p&gt;&lt;p&gt;Shortkey: &amp;lt;Enter&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Overwrite</string>
             </property>
@@ -249,6 +255,9 @@
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
          <widget class="QPushButton" name="pushButtonStartStop">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start automatic parsing.&lt;/p&gt;&lt;p&gt;Overwrite determined by checkbox.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>Start</string>
           </property>
@@ -281,7 +290,7 @@
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Item Color:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;White : No center information present&lt;/p&gt;&lt;p&gt;Blue: Center information already in path&lt;/p&gt;&lt;p&gt;Green: New center calculated&lt;/p&gt;&lt;p&gt;Red: Center flagged as incorrect, files deleted&lt;/p&gt;&lt;p&gt;Orange: Center flagged as incorrect.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Available Shortkeys:&lt;/p&gt;&lt;p&gt;&amp;lt;Enter&amp;gt;: Overwrite&lt;br/&gt;&amp;lt;Shift&amp;gt;: Redo Circlefinding&lt;br/&gt;&amp;lt;Delete&amp;gt;: Flag item and delete center info&lt;br/&gt;&amp;lt;Backspace&amp;gt;: Flag iten but keep center info&lt;/p&gt;&lt;p&gt;Item Color:&lt;/p&gt;&lt;p&gt;White : No center information present&lt;br/&gt;Blue: Center information already in path&lt;br/&gt;Green: New center calculated&lt;br/&gt;Red: Center flagged as incorrect, files deleted&lt;br/&gt;Orange: Center flagged as incorrect.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>

@@ -178,6 +178,7 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
         self.groupBoxCenterFinder.setTitle(_translate("Form", "CenterFinder Settings"))
+        self.pushButtonRedoCenter.setToolTip(_translate("Form", "<html><head/><body><p>Redo current analysis.</p><p>Overwrite determined by checkbox.</p><p><br/></p><p>Shortkey: &lt;Shift&gt;</p><p><br/></p></body></html>"))
         self.pushButtonRedoCenter.setText(_translate("Form", "Redo"))
         self.label_6.setText(_translate("Form", "Iterations"))
         self.label_7.setText(_translate("Form", "ContrastWeight"))
@@ -188,10 +189,12 @@ class Ui_Form(object):
         self.label.setText(_translate("Form", "min Radius"))
         self.label_2.setText(_translate("Form", "max Radius"))
         self.checkBoxOverwrite.setText(_translate("Form", "Overwrite Previous Results Automatically"))
+        self.pushButtonOverwrite.setToolTip(_translate("Form", "<html><head/><body><p>Overwrites current result.</p><p>Shortkey: &lt;Enter&gt;</p></body></html>"))
         self.pushButtonOverwrite.setText(_translate("Form", "Overwrite"))
         self.groupBox.setTitle(_translate("Form", "Automatic"))
+        self.pushButtonStartStop.setToolTip(_translate("Form", "<html><head/><body><p>Start automatic parsing.</p><p>Overwrite determined by checkbox.</p><p><br/></p></body></html>"))
         self.pushButtonStartStop.setText(_translate("Form", "Start"))
         self.groupBox_2.setTitle(_translate("Form", "Loaded Videos"))
-        self.listWidgetVideos.setToolTip(_translate("Form", "<html><head/><body><p>Item Color:</p><p><br/></p><p>White : No center information present</p><p>Blue: Center information already in path</p><p>Green: New center calculated</p><p>Red: Center flagged as incorrect, files deleted</p><p>Orange: Center flagged as incorrect.</p></body></html>"))
+        self.listWidgetVideos.setToolTip(_translate("Form", "<html><head/><body><p>Available Shortkeys:</p><p>&lt;Enter&gt;: Overwrite<br/>&lt;Shift&gt;: Redo Circlefinding<br/>&lt;Delete&gt;: Flag item and delete center info<br/>&lt;Backspace&gt;: Flag iten but keep center info</p><p>Item Color:</p><p>White : No center information present<br/>Blue: Center information already in path<br/>Green: New center calculated<br/>Red: Center flagged as incorrect, files deleted<br/>Orange: Center flagged as incorrect.</p></body></html>"))
 
 from pyqtgraph import ImageView

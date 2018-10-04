@@ -96,6 +96,8 @@ class Ui_MainWindow(object):
         self.actionCenterfinding_selection.setObjectName("actionCenterfinding_selection")
         self.actionMissing_Parameter = QtWidgets.QAction(MainWindow)
         self.actionMissing_Parameter.setObjectName("actionMissing_Parameter")
+        self.actionOpen_Data_Explorer = QtWidgets.QAction(MainWindow)
+        self.actionOpen_Data_Explorer.setObjectName("actionOpen_Data_Explorer")
         self.menuAdd_To_Project.addAction(self.actionScrape_New_Data)
         self.menuAdd_To_Project.addAction(self.actionLoad_Existing_Dataset)
         self.menuProject_2.addAction(self.actionNew_Project)
@@ -111,6 +113,7 @@ class Ui_MainWindow(object):
         self.menuCenterfinding.addAction(self.actionCenterfinding_selection)
         self.menuTools.addAction(self.menuCenterfinding.menuAction())
         self.menuTools.addAction(self.menuCalculate.menuAction())
+        self.menuTools.addAction(self.actionOpen_Data_Explorer)
         self.menubar.addAction(self.menuProject.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
 
@@ -147,4 +150,5 @@ class Ui_MainWindow(object):
         self.actionCenterfinding_All.setText(_translate("MainWindow", "Centerfinding All"))
         self.actionCenterfinding_selection.setText(_translate("MainWindow", "Centerfinding Selection"))
         self.actionMissing_Parameter.setText(_translate("MainWindow", "Missing Parameters"))
+        self.actionOpen_Data_Explorer.setText(_translate("MainWindow", "Open Data Explorer"))
 

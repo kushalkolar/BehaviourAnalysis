@@ -27,7 +27,8 @@ class CenterFindingWindow(QtWidgets.QWidget):
         self.setWindowTitle("CenterFinder")
         self.setWindowIcon(QtGui.QIcon("icons/centerfinder.png"))
         self.ui.pushButtonOverwrite.setEnabled(True)
-        self.ui.pushButtonOverwrite.clicked.connect(self.overwrite)
+        self.show()
+        self.ui.pushButtonOverwrite.clicked.connect(self.overwrite_center)
         self.ui.checkBoxOverwrite.clicked.connect(self.toggle_overwrite)
         self.overwrite = False
         self.data_path = data_path
@@ -38,13 +39,20 @@ class CenterFindingWindow(QtWidgets.QWidget):
     
         self.project_path = project_path
         self.vid_dict = {}
-        self.videos_done = []
+        self.videos_not_found = []
         
         self.selection = selection
 
         for selected in self.selection:
-            vid = [x for x in self.all_videos if selected.text(0) in x]
-            self.vid_dict[selected.text(0)] = vid[0]
+            try:
+                vid = [x for x in self.all_videos if selected.text(0) in x]
+                self.vid_dict[selected.text(0)] = vid[0]
+            except:
+                self.videos_not_found.append(selected)
+        if len(self.videos_not_found) > 0:
+            QtWidgets.QMessageBox.warning(self, "Videos Not Found", str(len(self.videos_not_found))+" out of "+ str(len(self.selection)) +" not found in selected path")
+        for vid in self.videos_not_found:
+            self.selection.remove(vid)
 
         self.ui.comboBoxThresholdMethod.addItem("NONE")
         self.ui.comboBoxThresholdMethod.addItem("BINARY")
@@ -61,11 +69,12 @@ class CenterFindingWindow(QtWidgets.QWidget):
         self.ui.listWidgetVideos.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.listWidgetVideos.customContextMenuRequested.connect(self.contextMenuEvent_listwidgetVideos)
 
-        self.flagDataKeepaction = QtWidgets.QAction("&Flag and keep center", self, triggered = lambda: self.flagData(delete = False))
-        self.flagDataDeleteaction = QtWidgets.QAction("&Flag and delete center", self, triggered = lambda: self.flagData(delete = True))
+        self.flag_dataKeepaction = QtWidgets.QAction("&Flag and keep center", self, triggered = lambda: self.flag_data(delete = False))
+        self.flag_dataDeleteaction = QtWidgets.QAction("&Flag and delete center", self, triggered = lambda: self.flag_data(delete = True))
 
         self.ui.graphicsView.ui.menuBtn.hide()
         self.ui.graphicsView.ui.roiBtn.hide()
+
 
         for item in self.selection:
             to_add = QtGui.QListWidgetItem(item.text(0))
@@ -86,13 +95,23 @@ class CenterFindingWindow(QtWidgets.QWidget):
 #                        self.vid_dict[f] = os.path.join(root, f)
 #                        self.ui.listWidgetVideos.addItem(f)
 
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Return:
+            self.overwrite_center()
+        elif event.key() == QtCore.Qt.Key_Shift:
+            self.process_item()
+        elif event.key() == QtCore.Qt.Key_Delete:
+            self.flag_data(delete = True)
+        elif event.key() == QtCore.Qt.Key_Backspace:
+            self.flag_data(delete = False)
+
     def contextMenuEvent_listwidgetVideos(self, event):
         menu = QtWidgets.QMenu(self)
-        menu.addAction(self.flagDataDeleteaction)
-        menu.addAction(self.flagDataKeepaction)
+        menu.addAction(self.flag_dataDeleteaction)
+        menu.addAction(self.flag_dataKeepaction)
         menu.popup(self.ui.listWidgetVideos.mapToGlobal(event))
 
-    def flagData(self, delete = False):
+    def flag_data(self, delete = False):
         if delete == True:
             self.ui.listWidgetVideos.currentItem().setBackground(QtGui.QColor("red"))
             destination_path = self.ui.listWidgetVideos.currentItem().data(1)
@@ -124,7 +143,7 @@ class CenterFindingWindow(QtWidgets.QWidget):
         else:
             self.ui.spinBoxThreshold.setEnabled(True)
 
-    def overwrite(self):
+    def overwrite_center(self):
         self.overwrite = True
         self.process_item()
         self.overwrite = False
@@ -162,12 +181,6 @@ class CenterFindingWindow(QtWidgets.QWidget):
             img = np.hstack([img_edit, img_orig])
             self.ui.graphicsView.setImage(np.swapaxes(img, 0, 1))
             self.save_center(destination_path, center)
-
-
-
-
-    def find_video_center(self):
-        self.process_item()
 
 
     def save_center(self, destination_path, center):
@@ -249,7 +262,7 @@ class CenterFindingWindow(QtWidgets.QWidget):
 
                 if self.alive:
                     self.ui.listWidgetVideos.setCurrentItem(vid)
-                    self.find_video_center()
+                    self.process_item()
 
                 else:
                     break

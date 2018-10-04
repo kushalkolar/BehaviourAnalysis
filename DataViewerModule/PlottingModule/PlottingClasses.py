@@ -56,4 +56,21 @@ class PlotWidget(QtWidgets.QWidget):
 
     def draw(self):
         self.canvas.draw()
+
+    def plot(self, x, y, xname = "X", yname = "Y", plot_title = False, color = "b", linewidth = 2, alpha = 1, clear_axis = True):
+        if clear_axis:
+            self.canvas.clear()
+            ax = self.canvas.figure.add_subplot(111)
+        else:
+            ax = self.canvas.figure.gca()
+        ax.plot(x, y, color = color, lw = linewidth, alpha = alpha)
+        ax.set_xlabel(xname)
+        ax.set_ylabel(yname)
+        if not plot_title:
+            ax.set_title(yname + " vs " + xname)
+        else:
+            ax.set_title(plot_title)
+        self.canvas.figure.tight_layout()
+        self.draw()
+
         

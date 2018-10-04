@@ -16,6 +16,8 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle("Data Explorer")
+        self.setWindowIcon(QtGui.QIcon("icons/pickle.png"))
         self.show()
         
         self.ui.treeWidgetAllColums.setVisible(False)
@@ -56,6 +58,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.action_as_CSV.triggered.connect(lambda: self.save_selection(as_type = "csv"))
         self.ui.action_as_Pickle.triggered.connect(lambda: self.save_selection(as_type = "pickle"))
         self.toCSVAct = QtWidgets.QAction("&Save Selection to CSV", self, triggered = lambda: self.save_selection(as_type = "csv"))
+        self.removeAllFiltersAct = QtWidgets.QAction("&Remove all Filters", self, triggered = self.remove_all_filters)
 
         self.ui.groupBoxPlotting.setVisible(False)
         self.ui.framePlotWidget.setLayout(QtWidgets.QVBoxLayout())
@@ -88,6 +91,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
     def contextMenuEvent_SelectedData(self, event):
         menu = QtWidgets.QMenu(self)
         menu.addAction(self.toCSVAct)
+        menu.addAction(self.removeAllFiltersAct)
         menu.popup(self.ui.tableWidgetSelectedData.mapToGlobal(event))
     
     def contextMenuEvent_AppliedFilters(self, event):
@@ -95,10 +99,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         if len(self.ui.listWidgetAppliedFilters.selectedItems()) > 0:
             menu.addAction(self.removeFilteract)
             menu.addAction(self.saveFiltersetact)
-        selected_columns = [self.ui.listWidgetSelectedColumns.item(i).text() for i in range(self.ui.listWidgetSelectedColumns.count())]
-        if len(selected_columns) > 0:
-            menu.addAction(self.loadFiltersetact)
-
+        menu.addAction(self.loadFiltersetact)
         menu.popup(self.ui.listWidgetAppliedFilters.mapToGlobal(event))
 
     def contextMenuEvent_PlottingMenu(self, event):
@@ -183,6 +184,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.comboBoxSelectedColumns.addItem("index")
         for item in selection:
             self.ui.comboBoxSelectedColumns.addItem(item)
+        self.update_plotting_ui()
 
     def update_unique_values(self):
         self.ui.listWidgetUniqueValues.clear()
@@ -248,12 +250,20 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.filters.pop(filter_to_remove)
         self.update_selected_data()           
 
+    def remove_all_filters(self):
+        self.filters = {}
+        self.update_selected_data()
 
     def load_filterset(self):
         path_to_filter = QtWidgets.QFileDialog.getOpenFileName(directory=self.path)[0]
         with open(path_to_filter,"rb") as f:
             self.filters = pickle.load(f)
+        columns = [self.ui.listWidgetSelectedColumns.item(i).text() for i in range(self.ui.listWidgetSelectedColumns.count())]
+        for key in self.filters.keys():
+            if key not in columns:
+                self.ui.listWidgetSelectedColumns.addItem(key)
         self.apply_filters()
+        self.update_selected_data()
 
     def save_filterset(self):
         savepath = QtWidgets.QFileDialog.getSaveFileName(directory=self.path)[0]
@@ -314,10 +324,16 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
 
     def update_plotting_ui(self):
         self.ui.groupBoxPlotting.setVisible(True)
+        xdata_text = self.ui.comboBoxXData.currentText()
+        ydata_text = self.ui.comboBoxYData.currentText()
+        color_text = self.ui.comboBoxColorParam.currentText()
         for box in [self.ui.comboBoxXData, self.ui.comboBoxYData]:
             box.clear()
             box.addItems(self.df_selection.columns)
-        self.toggle_colorselection()
+        self.ui.comboBoxXData.setCurrentText(xdata_text)
+        self.ui.comboBoxYData.setCurrentText(ydata_text)
+        self.ui.comboBoxColorParam.setCurrentText(color_text)
+        self.toggle_colorselection(text = self.ui.comboBoxPlotType.currentText())
 
     def toggle_colorselection(self, text = "None"):
         if text == "None":

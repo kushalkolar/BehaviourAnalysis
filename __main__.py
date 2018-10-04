@@ -39,12 +39,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
         
         self.ui = Ui_MainWindow()
-    
         self.ui.setupUi(self)
 
         self.setWindowIcon(QtGui.QIcon("icons/centerfinder.png"))
         self.project_path = None
-        self.ui.menuTools.setEnabled(False)
+        self.ui.menuTools.setEnabled(True)
 
         self.ui.tabWidgetFolders.currentChanged.connect(self.update_tree)
 
@@ -67,6 +66,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.actionOnly_Metadata.triggered.connect(self.calculate_metadata)
         self.ui.actionLoad_Project.triggered.connect(self.load_project)
         self.ui.actionLoad_Existing_Dataset.triggered.connect(self.load_project_to_add)
+        self.ui.actionOpen_Data_Explorer.triggered.connect(self.open_data_explorer)
 
         """
         Actions
@@ -289,10 +289,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             elif text.endswith(".txt"):
                 os.popen("notepad "+text)
             elif text.endswith(".pickle"):
-                self.pv = PandasViewer(df = pd.read_pickle(text))
-                self.pv.setWindowTitle("Data Explorer")
-                self.pv.setWindowIcon(QtGui.QIcon("icons/pickle.png"))
-                self.pv.show()
+                self.pv = PandasViewer(df = text, path = os.path.split(text))
 #                self.dv = DataViewer(df_path = text)
 #                self.dv.show()
         except Exception as e:
@@ -309,9 +306,15 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 #        self.centerfinding_window = CenterFindingWindow(data_path = self.data_path, project_path = self.project_path)
 
         self.centerfinding_window = CenterFindingWindow(project_path= self.project_path, selection=selection)
-        self.centerfinding_window.show()
 
     def calculate_parameters(self, mode):
+        if QtWidgets.QMessageBox.warning(self, "Do you really have time for this?",
+                                         "This may take a while, and for now there is no way out. "
+                                         "\n Do you wish to start the calculation?",
+                                         QtWidgets.QMessageBox.Yes,
+                                         QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.No:
+            return
+
         if mode == "selection":
             selection = [item.text(1) for item in  self.ui.treeWidgetProjectFolder.selectedItems()]
             self.datahandler = DataHandler(path = self.project_path, selection= selection)
@@ -326,7 +329,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         else:
             self.datahandler = DataHandler(self.project_path)
         self.datahandler.calculate_all_parameters()
-        QtWidgets.QMessageBox.warning(self, "Calculations have started", "This may take a while, and for now there is no way out. \n Keep an eye on the console for more info.")
+        QtWidgets.QMessageBox.warning(self, "So be it...",
+                                      "Calculations have started. This will take a while. Get some coffee."
+                                      "\n Keep an eye on the console for updates")
 
     def calculate_metadata(self):
         try:
@@ -337,7 +342,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         except Exception as e:
             print(e)
 
-
+    def open_data_explorer(self):
+        if hasattr(self,"pv"):
+            self.pv.show()
+        else:
+            self.pv = PandasViewer()
 
 
 

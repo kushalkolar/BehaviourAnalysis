@@ -130,6 +130,7 @@
     </widget>
     <addaction name="menuCenterfinding"/>
     <addaction name="menuCalculate"/>
+    <addaction name="actionOpen_Data_Explorer"/>
    </widget>
    <addaction name="menuProject"/>
    <addaction name="menuTools"/>
@@ -213,6 +214,11 @@
   <action name="actionMissing_Parameter">
    <property name="text">
     <string>Missing Parameters</string>
+   </property>
+  </action>
+  <action name="actionOpen_Data_Explorer">
+   <property name="text">
+    <string>Open Data Explorer</string>
    </property>
   </action>
  </widget>
