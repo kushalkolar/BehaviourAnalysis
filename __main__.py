@@ -76,28 +76,22 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.redoCenterAct = QtWidgets.QAction("Redo Center", self, triggered=self.redoCenter)
         self.redoParamsAct = QtWidgets.QAction("Redo Parameters", self, triggered=self.redoParams)
         self.toCSVAct = QtWidgets.QAction("Convert to CSV", self, triggered=self.toCSV)
+        self.updateProjectAct = QtWidgets.QAction("Update Project View", self, triggered = self.update_tree)
         
     def contextMenuEvent(self, event):
         selection = self.ui.treeWidgetProjectFolder.selectedItems()
-        geometry = self.geometry()
-        x, y, w, h = geometry.getCoords()
-        print(x, y, event.x(), event.y())
         menu = QtWidgets.QMenu(self)
-        location = QtCore.QPoint()
-        x += event.x()
-        y += event.y() + 80
-        location.setX(x)
-        location.setY(y)
 
+        menu.addAction(self.updateProjectAct)
         if len(selection) == 1 and "pickle" in selection[0].text(1):
             menu.addAction(self.toCSVAct)
             menu.addAction(self.delAct)
-            menu.popup(location)
+
         elif self.focusWidget() == self.ui.treeWidgetProjectFolder and len(selection) != 0:
             menu.addAction(self.delAct)
             menu.addAction(self.redoCenterAct)
             menu.addAction(self.redoParamsAct)
-            menu.popup(location)
+        menu.popup(self.ui.treeWidgetProjectFolder.mapToGlobal(event))
 
     def delete(self):
         selection = self.ui.treeWidgetProjectFolder.selectedItems()

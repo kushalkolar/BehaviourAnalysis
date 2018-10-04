@@ -26,6 +26,11 @@ class CenterFindingWindow(QtWidgets.QWidget):
         self.ui.setupUi(self)
         self.setWindowTitle("CenterFinder")
         self.setWindowIcon(QtGui.QIcon("icons/centerfinder.png"))
+
+        self.ui.graphicsView.ui.menuBtn.hide()
+        self.ui.graphicsView.ui.roiBtn.hide()
+        # self.ui.graphicsView.ui.histogram.hide()
+
         self.ui.pushButtonOverwrite.setEnabled(True)
         self.show()
         self.ui.pushButtonOverwrite.clicked.connect(self.overwrite_center)
@@ -72,8 +77,6 @@ class CenterFindingWindow(QtWidgets.QWidget):
         self.flag_dataKeepaction = QtWidgets.QAction("&Flag and keep center", self, triggered = lambda: self.flag_data(delete = False))
         self.flag_dataDeleteaction = QtWidgets.QAction("&Flag and delete center", self, triggered = lambda: self.flag_data(delete = True))
 
-        self.ui.graphicsView.ui.menuBtn.hide()
-        self.ui.graphicsView.ui.roiBtn.hide()
 
 
         for item in self.selection:
@@ -122,7 +125,7 @@ class CenterFindingWindow(QtWidgets.QWidget):
                 elif "metadata" in file:
                     meta_df_file = os.path.join(destination_path, "metadata.txt")
                     meta_df = pd.read_csv(meta_df_file, delimiter="\t")
-                    to_drop = [col for col in met_df.columns if "center" in col]
+                    to_drop = [col for col in meta_df.columns if "center" in col]
                     meta_df.drop(to_drop, axis = 1, inplace = True)
                     meta_df.to_csv(meta_df_file, sep = "\t")
         else:
