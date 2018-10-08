@@ -60,6 +60,16 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.toCSVAct = QtWidgets.QAction("&Save Selection to CSV", self, triggered = lambda: self.save_selection(as_type = "csv"))
         self.removeAllFiltersAct = QtWidgets.QAction("&Remove all Filters", self, triggered = self.remove_all_filters)
 
+        self.ui.actionData.triggered.connect(lambda: self.hide_unhide_widget(self.ui.tabWidget, self.ui.actionData))
+        self.ui.actionPlotting.triggered.connect(lambda: self.hide_unhide_widget(self.ui.groupBoxPlotting, self.ui.actionPlotting))
+        self.ui.actionData_Selection.triggered.connect(lambda: self.hide_unhide_widget(self.ui.groupBox, self.ui.actionData_Selection))
+        self.ui.frameConsole.setVisible(False)
+        self.ui.actionConsole.triggered.connect(self.open_console)
+        self.ui.pushButtonCloseConsole.clicked.connect(self.close_console)
+
+        self.ui.actionData_Selection.setIcon(QtGui.QIcon("icons/checkmark.png"))
+        self.ui.actionData.setIcon(QtGui.QIcon("icons/checkmark.png"))
+
         self.ui.groupBoxPlotting.setVisible(False)
         self.ui.framePlotWidget.setLayout(QtWidgets.QVBoxLayout())
         self.plot = PlotWidget()
@@ -84,9 +94,6 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.comboBoxColorParam.setVisible(False)
         self.ui.labelColorParam.setVisible(False)
 
-        self.ui.frameConsole.setLayout(QtWidgets.QVBoxLayout())
-        self.console = ConsoleWidget(namespace={"self":self})
-        self.ui.frameConsole.layout().addWidget(self.console)
 
     def contextMenuEvent_SelectedData(self, event):
         menu = QtWidgets.QMenu(self)
@@ -363,7 +370,11 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                 ax.violinplot(to_plot)
                 try:
                     ax.set_xticks([x+1 for x in range(len(groups))])
-                    ax.set_xticklabels(groups)
+                    if max([len(str(x)) for x in groups]) > 10:
+                        rotation = 90
+                    else:
+                        rotation = 0
+                    ax.set_xticklabels(groups, rotation = rotation)
                     ax.set_xlabel(x_data)
                     ax.set_ylabel(y_data)
                     self.plot.canvas.figure.tight_layout()
@@ -407,4 +418,40 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         except Exception as e:
             e = str(e)
             QtWidgets.QMessageBox.warning(self, "Error in plot", "It seems that you are making an impossible plot. Please look at your parameters. \n This is what the computer has to say: \n '"+e+"'")
-            
+
+
+    def open_console(self):
+        if not self.ui.frameConsole.isVisible():
+            if hasattr(self, "console"):
+                if self.ui.frameConsole.isVisible() == False:
+                    self.ui.frameConsole.setVisible(True)
+                if self.ui.groupBoxPlotting.isVisible() == False:
+                    self.ui.actionPlotting.setIcon(QtGui.QIcon("icons/checkmark.png"))
+                    self.ui.groupBoxPlotting.setVisible(True)
+            else:
+                self.ui.frameConsole.setLayout(QtWidgets.QVBoxLayout())
+                self.console = ConsoleWidget(namespace={"viewer": self, "pd": pd, "np": np, "os": os},
+                                             text = "\r This console has access to everything in the namespace of this viewer. "
+                                                    "\n Example: viewer.df refers to the complete dataframe. viewer.df_selection refers to currently selected data "
+                                                    "\n UI widgets are accessible using viewer.ui, like viewer.ui.console for this console."
+                                                    "\n imported libraries: pandas as pd, numpy as np, os ")
+                self.ui.frameConsole.layout().addWidget(self.console)
+                self.ui.frameConsole.setVisible(True)
+                self.ui.groupBoxPlotting.setVisible(True)
+                self.ui.actionConsole.setIcon(QtGui.QIcon("icons/checkmark.png"))
+        else:
+            self.close_console()
+    def close_console(self):
+        if hasattr(self, "console"):
+            self.console.setParent(None)
+            delattr(self,"console")
+            self.ui.frameConsole.setVisible(False)
+            self.ui.actionConsole.setIcon(QtGui.QIcon())
+
+    def hide_unhide_widget(self, widget, action):
+        if widget.isVisible():
+            widget.setVisible(False)
+            action.setIcon(QtGui.QIcon())
+        else:
+            widget.setVisible(True)
+            action.setIcon(QtGui.QIcon("icons/checkmark.png"))
