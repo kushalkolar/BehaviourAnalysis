@@ -4,6 +4,7 @@ from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from pyqtgraph.console import ConsoleWidget
 from DataViewerModule.pandasviewer_mainwindow import Ui_MainWindow
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
+from DataViewerModule.scannermodule import SignificanceScanner
 import sys
 import ast
 import pickle
@@ -63,6 +64,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.actionData.triggered.connect(lambda: self.hide_unhide_widget(self.ui.tabWidget, self.ui.actionData))
         self.ui.actionPlotting.triggered.connect(lambda: self.hide_unhide_widget(self.ui.groupBoxPlotting, self.ui.actionPlotting))
         self.ui.actionData_Selection.triggered.connect(lambda: self.hide_unhide_widget(self.ui.groupBox, self.ui.actionData_Selection))
+        self.ui.actionTransforms.triggered.connect(lambda: self.hide_unhide_widget(self.ui.frameTransform, self.ui.actionTransforms))
         self.ui.frameConsole.setVisible(False)
         self.ui.actionConsole.triggered.connect(self.open_console)
         self.ui.pushButtonCloseConsole.clicked.connect(self.close_console)
@@ -94,7 +96,15 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.comboBoxColorParam.setVisible(False)
         self.ui.labelColorParam.setVisible(False)
 
+        self.ui.frameTransform.setVisible(False)
+        for transform in ["none","square root", "natural logarithm", "reciprocal", "reciprocal sqrt", "exponential"]:
+            self.ui.comboBoxTransformations.addItem(transform)
 
+        self.ui.pushButtonTransformData.clicked.connect(self.transform)
+        self.ui.pushButtonAddTransformToData.clicked.connect(self.add_transformation_to_data)
+        
+        self.ui.actionScan_for_significance.triggered.connect(self.start_significance_scanner)
+        
     def contextMenuEvent_SelectedData(self, event):
         menu = QtWidgets.QMenu(self)
         menu.addAction(self.toCSVAct)
@@ -113,6 +123,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         menu = QtWidgets.QMenu(self)
         menu.addAction(self.updatePlottingUIact)
         menu.popup(self.ui.groupBoxPlotting.mapToGlobal(event))
+
 
     def load_dataset(self):
         path = QtWidgets.QFileDialog.getOpenFileName(caption="Select a file (.pickle, or tab delimited txt", directory=self.path)[0]
@@ -455,3 +466,102 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         else:
             widget.setVisible(True)
             action.setIcon(QtGui.QIcon("icons/checkmark.png"))
+
+    def _transorm(self, to_transform, transformation):
+        if transformation == "none":
+            transformed = to_transform
+        elif transformation == "square root":
+            transformed = np.sqrt(to_transform)
+        elif transformation == "natural logarithm":
+            transformed = np.log(to_transform)
+        elif transformation == "reciprocal":
+            transformed = 1/to_transform
+        elif transformation == "reciprocal sqrt":
+            transformed = 1/(np.sqrt(to_transform))
+        else:
+            transformed = to_transform**2
+        return transformed
+
+    def transform(self):
+        to_transform = self.df_selection[self.ui.comboBoxYData.currentText()]
+        transformation = self.ui.comboBoxTransformations.currentText()
+        transformed = self._transorm(to_transform, transformation)
+        try:
+            self.plot.canvas.clear()
+            plottype = self.ui.comboBoxPlotType.currentText()
+            x_data = self.ui.comboBoxXData.currentText()
+            if plottype == "violinplot":
+                ax = self.plot.canvas.figure.add_subplot(111)
+                groups = self.df_selection[x_data].unique().tolist()
+                to_plot = []
+                for group in groups:
+                    to_plot.append(
+                        transformed[self.df_selection[x_data] == group].dropna().values.tolist())
+
+                ax.violinplot(to_plot)
+                try:
+                    ax.set_xticks([x + 1 for x in range(len(groups))])
+                    if max([len(str(x)) for x in groups]) > 10:
+                        rotation = 90
+                    else:
+                        rotation = 0
+                    ax.set_xticklabels(groups, rotation=rotation)
+                    ax.set_xlabel(x_data)
+                    ax.set_ylabel(transformation)
+                    self.plot.canvas.figure.tight_layout()
+                    self.plot.canvas.draw()
+                except:
+                    pass
+            elif plottype == "lineplot":
+                ax = self.plot.canvas.figure.add_subplot(111)
+                ax.plot(self.df_selection[x_data], transformed)
+                ax.set_xlabel(x_data)
+                ax.set_ylabel(transformation)
+                self.plot.canvas.figure.tight_layout()
+                self.plot.canvas.draw()
+
+            elif plottype == "scatterplot":
+                ax = self.plot.canvas.figure.add_subplot(111)
+                colorparam = self.ui.comboBoxColorParam.currentText()
+                try:
+                    ax.scatter(self.df_selection[x_data].dropna(), transformed.dropna(),
+                               c=self.df_selection.loc[self.df_selection[x_data].notnull(), colorparam])
+                except:
+                    try:
+                        progress = 0
+                        colordict = {}
+                        counter = 0
+                        for x in self.df_selection[colorparam].unique():
+                            colordict[x] = counter
+                            counter += 1
+                        colors = [colordict[key] for key in self.df_selection[colorparam]]
+                        x = self.df_selection[x_data]
+                        y = transformed
+                        ax.scatter(x, y, c=colors)
+                    except Exception as e:
+                        print(progress, str(e))
+
+                ax.set_xlabel(x_data)
+                ax.set_ylabel(transformation)
+                self.plot.canvas.figure.tight_layout()
+                self.plot.canvas.draw()
+
+        except Exception as e:
+            e = str(e)
+            QtWidgets.QMessageBox.warning(self, "Error in plot",
+                                          "It seems that you are making an impossible plot. Please look at your parameters. \n This is what the computer has to say: \n '" + e + "'")
+
+
+    def add_transformation_to_data(self):
+        names = {"none":"none","square root":"sqrt", "natural logarithm":"ln", "reciprocal":"rcp", "reciprocal sqrt":"rcpsqrt", "exponential":"exp"}
+        param = self.ui.comboBoxYData.currentText()
+        to_transform = self.df_selection[param]
+        transformation = self.ui.comboBoxTransformations.currentText()
+        transformed = self._transorm(to_transform, transformation)
+        colname = param+"_"+names[transformation]
+        self.df_selection[colname] = transformed
+        self.update_plotting_ui()
+        self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
+        
+    def start_significance_scanner(self):
+        self.significance_scanner = SignificanceScanner(df = self.df_selection)

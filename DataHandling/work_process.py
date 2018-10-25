@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
     p.terminate()
     p.close()
-    os.remove(pickle_file)
+
 
 
 

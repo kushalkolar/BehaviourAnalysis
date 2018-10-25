@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>628</height>
+    <width>1057</width>
+    <height>630</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -255,23 +255,7 @@
       <property name="title">
        <string>PlottingControls</string>
       </property>
-      <layout class="QGridLayout" name="gridLayout_7">
-       <item row="1" column="0">
-        <widget class="QFrame" name="framePlotWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
+      <layout class="QGridLayout" name="gridLayout_9">
        <item row="0" column="0">
         <widget class="QFrame" name="framePlotControls">
          <property name="frameShape">
@@ -371,6 +355,62 @@
          </layout>
         </widget>
        </item>
+       <item row="0" column="1">
+        <widget class="QFrame" name="frameTransform">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="1" column="0">
+           <widget class="QComboBox" name="comboBoxTransformations"/>
+          </item>
+          <item row="2" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QPushButton" name="pushButtonAddTransformToData">
+              <property name="text">
+               <string>Add to data</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonTransformData">
+              <property name="text">
+               <string>Transform Parameter</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Data Transformation</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QFrame" name="framePlotWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="0">
         <widget class="QFrame" name="frameConsole">
          <property name="frameShape">
@@ -417,7 +457,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1057</width>
      <height>21</height>
     </rect>
    </property>
@@ -432,8 +472,15 @@
      <addaction name="action_as_CSV"/>
      <addaction name="action_as_Pickle"/>
     </widget>
+    <widget class="QMenu" name="menuStatistiscs">
+     <property name="title">
+      <string>Statistiscs</string>
+     </property>
+     <addaction name="actionScan_for_significance"/>
+    </widget>
     <addaction name="actionLoad_Dataset_into_Viewer"/>
     <addaction name="menuSave_Selected_Data"/>
+    <addaction name="menuStatistiscs"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -443,6 +490,7 @@
     <addaction name="actionData"/>
     <addaction name="actionPlotting"/>
     <addaction name="actionConsole"/>
+    <addaction name="actionTransforms"/>
    </widget>
    <addaction name="menuTools"/>
    <addaction name="menuView"/>
@@ -486,6 +534,36 @@
   <action name="actionData_Selection">
    <property name="text">
     <string>Selection Tools</string>
+   </property>
+  </action>
+  <action name="actionReciprocal">
+   <property name="text">
+    <string>Reciprocal</string>
+   </property>
+  </action>
+  <action name="actionReciprocal_Square_Root">
+   <property name="text">
+    <string>Reciprocal Square Root</string>
+   </property>
+  </action>
+  <action name="actionNatural_Logarithm">
+   <property name="text">
+    <string>Natural Logarithm</string>
+   </property>
+  </action>
+  <action name="actionSquare_Root">
+   <property name="text">
+    <string>Square Root</string>
+   </property>
+  </action>
+  <action name="actionTransforms">
+   <property name="text">
+    <string>Transforms</string>
+   </property>
+  </action>
+  <action name="actionScan_for_significance">
+   <property name="text">
+    <string>Scan for significance</string>
    </property>
   </action>
  </widget>
