@@ -34,7 +34,7 @@ class SignificanceScanner(QtWidgets.QWidget):
         self.plot = PlotWidget()
         self.ui.framePlotWidget.layout().addWidget(self.plot)
         self.ui.framePlotWidget.setVisible(False)
-        self.show()
+
         
     def addToColumn(self, listwidget):
         selection = [item.text() for item in self.ui.listWidgetAllColumns.selectedItems()]

@@ -233,12 +233,8 @@
         <string>Selected Data</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="2">
-         <widget class="QTableWidget" name="tableWidgetSelectedData">
-          <property name="selectionMode">
-           <enum>QAbstractItemView::ExtendedSelection</enum>
-          </property>
-         </widget>
+        <item row="0" column="0">
+         <widget class="QTableWidget" name="tableWidgetSelectedData"/>
         </item>
        </layout>
       </widget>
@@ -253,10 +249,66 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string>PlottingControls</string>
+       <string>Plotting and Stats</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="0" column="0">
+       <item row="0" column="1">
+        <widget class="QFrame" name="frameTransform">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="1" column="0">
+           <widget class="QComboBox" name="comboBoxTransformations"/>
+          </item>
+          <item row="2" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QPushButton" name="pushButtonAddTransformToData">
+              <property name="text">
+               <string>Add to data</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonTransformData">
+              <property name="text">
+               <string>View Transformation</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Data Transformation</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QFrame" name="framePlotWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" rowspan="2">
         <widget class="QFrame" name="framePlotControls">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -355,63 +407,69 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QFrame" name="frameTransform">
+       <item row="1" column="1">
+        <widget class="QFrame" name="frameStatistics">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CAUTION:&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The  test is performed on data selected for the plot. If you want to test a transformed parameter, add it to data first, and then plot it. Otherwise you might not be testing what you think you are testing. &lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Only kruskal-wallis and one-way anova are implemented, and these are not suitable for comparing a dataset of only two groups. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QGridLayout" name="gridLayout_7">
+         <layout class="QGridLayout" name="gridLayout_10">
           <item row="1" column="0">
-           <widget class="QComboBox" name="comboBoxTransformations"/>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Alpha</string>
+            </property>
+           </widget>
           </item>
-          <item row="2" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
-            <item>
-             <widget class="QPushButton" name="pushButtonAddTransformToData">
-              <property name="text">
-               <string>Add to data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButtonTransformData">
-              <property name="text">
-               <string>Transform Parameter</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxAlpha">
+            <property name="decimals">
+             <number>3</number>
+            </property>
+            <property name="singleStep">
+             <double>0.010000000000000</double>
+            </property>
+            <property name="value">
+             <double>0.050000000000000</double>
+            </property>
+           </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QLabel" name="label_5">
+           <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Data Transformation</string>
+             <string>Test</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBoxStatisticalTests"/>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QPushButton" name="pushButtonTest">
+            <property name="text">
+             <string>Test</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="lineEditPvalue"/>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>pval:</string>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QFrame" name="framePlotWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
+       <item row="4" column="0" colspan="2">
         <widget class="QFrame" name="frameConsole">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -491,6 +549,7 @@
     <addaction name="actionPlotting"/>
     <addaction name="actionConsole"/>
     <addaction name="actionTransforms"/>
+    <addaction name="actionStatistics"/>
    </widget>
    <addaction name="menuTools"/>
    <addaction name="menuView"/>
@@ -564,6 +623,11 @@
   <action name="actionScan_for_significance">
    <property name="text">
     <string>Scan for significance</string>
+   </property>
+  </action>
+  <action name="actionStatistics">
+   <property name="text">
+    <string>Statistics</string>
    </property>
   </action>
  </widget>

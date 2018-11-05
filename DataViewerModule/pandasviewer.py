@@ -4,11 +4,13 @@ from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from pyqtgraph.console import ConsoleWidget
 from DataViewerModule.pandasviewer_mainwindow import Ui_MainWindow
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
+from DataViewerModule.PandasModel import PandasModel 
 from DataViewerModule.scannermodule import SignificanceScanner
 import sys
 import ast
 import pickle
 import os
+from scipy import stats
 
 class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None,*args, df = "none", path = None):
@@ -65,7 +67,9 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.actionPlotting.triggered.connect(lambda: self.hide_unhide_widget(self.ui.groupBoxPlotting, self.ui.actionPlotting))
         self.ui.actionData_Selection.triggered.connect(lambda: self.hide_unhide_widget(self.ui.groupBox, self.ui.actionData_Selection))
         self.ui.actionTransforms.triggered.connect(lambda: self.hide_unhide_widget(self.ui.frameTransform, self.ui.actionTransforms))
+        self.ui.actionStatistics.triggered.connect(lambda: self.hide_unhide_widget(self.ui.frameStatistics, self.ui.actionStatistics))
         self.ui.frameConsole.setVisible(False)
+        self.ui.frameStatistics.setVisible(False)
         self.ui.actionConsole.triggered.connect(self.open_console)
         self.ui.pushButtonCloseConsole.clicked.connect(self.close_console)
 
@@ -102,8 +106,12 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
 
         self.ui.pushButtonTransformData.clicked.connect(self.transform)
         self.ui.pushButtonAddTransformToData.clicked.connect(self.add_transformation_to_data)
-        
         self.ui.actionScan_for_significance.triggered.connect(self.start_significance_scanner)
+
+        self.ui.pushButtonTest.clicked.connect(self.run_statistics)
+        for test in ["Kruskal-Wallis", "Oneway ANOVA"]:
+            self.ui.comboBoxStatisticalTests.addItem(test)
+
         
     def contextMenuEvent_SelectedData(self, event):
         menu = QtWidgets.QMenu(self)
@@ -143,6 +151,10 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.set_column_widget()
 
 
+    # def set_data(self, tableView, df):
+    #     model = PandasModel(df)
+    #     tableView.setModel(model)
+
     def set_data(self, tableWidget, df):
         if "index" not in df.columns:
             df["index"] = df.index
@@ -157,7 +169,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.listWidgetAllColumns.clear()
         self.ui.listWidgetAllColumns.addItems(self.df.columns)
 
-#THIS IS CODE TO SHOW COLUMNS IN A TREE WIDGET ITEM! SET VISIBLE TO FALSE IN __init__ TO SHOW THE WIDGET
+#THIS IS CODE TO SHOW COLUMNS IN A TREE WIDGET ITEM! SET VISIBLE TO TRUE IN __init__ TO SHOW THE WIDGET
 #        to_branch = list(set([x.split("_")[0] for  x in self.df.columns if len(x.split("_"))>1]))
 #        singles = list(set([x for x in self.df.columns if len(x.split("_")) == 1 and x not in to_branch]))
 #        
@@ -452,6 +464,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                 self.ui.actionConsole.setIcon(QtGui.QIcon("icons/checkmark.png"))
         else:
             self.close_console()
+
     def close_console(self):
         if hasattr(self, "console"):
             self.console.setParent(None)
@@ -564,4 +577,21 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
         
     def start_significance_scanner(self):
-        self.significance_scanner = SignificanceScanner(df = self.df_selection)
+        significance_scanner = SignificanceScanner(df = self.df_selection)
+        significance_scanner.show()
+        
+    def run_statistics(self):
+        test = self.ui.comboBoxStatisticalTests.currentText()
+        alpha = self.ui.doubleSpinBoxAlpha.value()
+        x_data = self.ui.comboBoxXData.currentText()
+        y_data = self.ui.comboBoxYData.currentText()
+        groups = self.df_selection[x_data].unique().tolist()
+        to_plot = []
+        for group in groups:
+            to_plot.append(self.df_selection[y_data][self.df_selection[x_data] == group].dropna().values.tolist())
+        if "kruskal" in test.lower():
+            pval = stats.kruskal(*to_plot)[1]
+        else:
+            pval = stats.f_oneway(*to_plot)[1]
+        self.ui.lineEditPvalue.setText(str(pval))
+        sys.stdout.write("\n Results for "+test+" "+x_data+" vs "+y_data+" \n pval= "+str(pval)+"\n")
