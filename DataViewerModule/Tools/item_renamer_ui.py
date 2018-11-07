@@ -1,0 +1,91 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'item_renamer.ui'
+#
+# Created by: PyQt5 UI code generator 5.6
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(692, 388)
+        self.gridLayout_3 = QtWidgets.QGridLayout(Form)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.frame = QtWidgets.QFrame(Form)
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayout = QtWidgets.QGridLayout(self.frame)
+        self.gridLayout.setObjectName("gridLayout")
+        self.listWidgetUniqueItems = QtWidgets.QListWidget(self.frame)
+        self.listWidgetUniqueItems.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.listWidgetUniqueItems.setObjectName("listWidgetUniqueItems")
+        self.gridLayout.addWidget(self.listWidgetUniqueItems, 1, 1, 1, 1)
+        self.label = QtWidgets.QLabel(self.frame)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.frame)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 0, 1, 1, 1)
+        self.lineEditSearchColumns = QtWidgets.QLineEdit(self.frame)
+        self.lineEditSearchColumns.setClearButtonEnabled(True)
+        self.lineEditSearchColumns.setObjectName("lineEditSearchColumns")
+        self.gridLayout.addWidget(self.lineEditSearchColumns, 3, 0, 1, 1)
+        self.lineEditSearchItems = QtWidgets.QLineEdit(self.frame)
+        self.lineEditSearchItems.setClearButtonEnabled(True)
+        self.lineEditSearchItems.setObjectName("lineEditSearchItems")
+        self.gridLayout.addWidget(self.lineEditSearchItems, 3, 1, 1, 1)
+        self.pushButtonAddToChange = QtWidgets.QPushButton(self.frame)
+        self.pushButtonAddToChange.setObjectName("pushButtonAddToChange")
+        self.gridLayout.addWidget(self.pushButtonAddToChange, 2, 1, 1, 1)
+        self.listWidgetAllColumns = QtWidgets.QListWidget(self.frame)
+        self.listWidgetAllColumns.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.listWidgetAllColumns.setObjectName("listWidgetAllColumns")
+        self.gridLayout.addWidget(self.listWidgetAllColumns, 1, 0, 2, 1)
+        self.gridLayout_3.addWidget(self.frame, 0, 0, 1, 1)
+        self.frame_2 = QtWidgets.QFrame(Form)
+        self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame_2)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.lineEditNewName = QtWidgets.QLineEdit(self.frame_2)
+        self.lineEditNewName.setObjectName("lineEditNewName")
+        self.gridLayout_2.addWidget(self.lineEditNewName, 4, 0, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.frame_2)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 1)
+        self.label_4 = QtWidgets.QLabel(self.frame_2)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout_2.addWidget(self.label_4, 3, 0, 1, 1)
+        self.listWidgetToRename = QtWidgets.QListWidget(self.frame_2)
+        self.listWidgetToRename.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.listWidgetToRename.setObjectName("listWidgetToRename")
+        self.gridLayout_2.addWidget(self.listWidgetToRename, 1, 0, 1, 1)
+        self.pushButtonOverwrite = QtWidgets.QPushButton(self.frame_2)
+        self.pushButtonOverwrite.setObjectName("pushButtonOverwrite")
+        self.gridLayout_2.addWidget(self.pushButtonOverwrite, 6, 0, 1, 1)
+        self.pushButtonRemoveSelection = QtWidgets.QPushButton(self.frame_2)
+        self.pushButtonRemoveSelection.setObjectName("pushButtonRemoveSelection")
+        self.gridLayout_2.addWidget(self.pushButtonRemoveSelection, 2, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.frame_2, 0, 1, 1, 1)
+
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def retranslateUi(self, Form):
+        _translate = QtCore.QCoreApplication.translate
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.label.setText(_translate("Form", "All Columns:"))
+        self.label_2.setText(_translate("Form", "Items in Column"))
+        self.lineEditSearchColumns.setText(_translate("Form", "Search...."))
+        self.lineEditSearchItems.setText(_translate("Form", "Search..."))
+        self.pushButtonAddToChange.setText(_translate("Form", "To rename ==>"))
+        self.label_3.setText(_translate("Form", "Items to Rename:"))
+        self.label_4.setText(_translate("Form", "New Name:"))
+        self.pushButtonOverwrite.setText(_translate("Form", "Overwrite on Selection"))
+        self.pushButtonRemoveSelection.setText(_translate("Form", "Remove Selection"))
+

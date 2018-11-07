@@ -117,7 +117,10 @@ def _calculate_parameters(folder):
                     turns[turns > np.pi] -= 2 * np.pi
                     turns[turns < -np.pi] += 2 * np.pi
                     df["turn" + pstring] = turns
+
+                #REWRITE! Displacement from first place where there is a value. Figure out how to do this best.
                 df["displacement"] = np.linalg.norm(coords[1] - coords, axis = 1)
+
                 complexity = lH(df, 30)
                 df["lH"] = complexity
 

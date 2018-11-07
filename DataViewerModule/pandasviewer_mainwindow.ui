@@ -539,6 +539,7 @@
     <addaction name="actionLoad_Dataset_into_Viewer"/>
     <addaction name="menuSave_Selected_Data"/>
     <addaction name="menuStatistiscs"/>
+    <addaction name="actionRename_items_in_column"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -628,6 +629,11 @@
   <action name="actionStatistics">
    <property name="text">
     <string>Statistics</string>
+   </property>
+  </action>
+  <action name="actionRename_items_in_column">
+   <property name="text">
+    <string>Rename items in column</string>
    </property>
   </action>
  </widget>

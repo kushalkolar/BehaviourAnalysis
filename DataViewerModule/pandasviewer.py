@@ -4,6 +4,7 @@ from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from pyqtgraph.console import ConsoleWidget
 from DataViewerModule.pandasviewer_mainwindow import Ui_MainWindow
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
+from DataViewerModule.Tools.item_renamer import ItemRenamer
 from DataViewerModule.PandasModel import PandasModel 
 from DataViewerModule.scannermodule import SignificanceScanner
 import sys
@@ -112,7 +113,8 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         for test in ["Kruskal-Wallis", "Oneway ANOVA"]:
             self.ui.comboBoxStatisticalTests.addItem(test)
 
-        
+        self.ui.actionRename_items_in_column.triggered.connect(self.start_item_renamer)
+
     def contextMenuEvent_SelectedData(self, event):
         menu = QtWidgets.QMenu(self)
         menu.addAction(self.toCSVAct)
@@ -595,3 +597,6 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
             pval = stats.f_oneway(*to_plot)[1]
         self.ui.lineEditPvalue.setText(str(pval))
         sys.stdout.write("\n Results for "+test+" "+x_data+" vs "+y_data+" \n pval= "+str(pval)+"\n")
+
+    def start_item_renamer(self):
+        self.item_renamer = ItemRenamer(parent_module=self)
