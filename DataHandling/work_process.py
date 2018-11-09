@@ -90,6 +90,8 @@ def _calculate_parameters(folder):
                 df["X"] = tracking_data["X"].loc[tracking_data.Track == t]
                 df["Y"] = tracking_data["Y"].loc[tracking_data.Track == t]
 
+                df = df.iloc[1:]
+
                 df["X"] = df["X"] - metadata.center_x_adj[0]
                 df["Y"] = df["Y"] - metadata.center_y_adj[0]
 
@@ -118,8 +120,21 @@ def _calculate_parameters(folder):
                     turns[turns < -np.pi] += 2 * np.pi
                     df["turn" + pstring] = turns
 
-                #REWRITE! Displacement from first place where there is a value. Figure out how to do this best.
-                df["displacement"] = np.linalg.norm(coords[1] - coords, axis = 1)
+                #Displacement calculated from first not-nan coordinate.
+                # nan = np.where(np.isnan(coords[:,0]))[0] #get indices of nans from coords
+                #
+                # if np.any(nan == 0): #if the first value is indeed nan, find first not nan
+                #     nan_diff = np.diff(nan)  #take differences, each time the diff is >1 there have been actual values in between
+                #     first_not_nan = np.where(nan_diff > 1)[0][0] + 1 #first place there is a diff>1 in indices of nans is the place the first non-nan item is.
+                # else:
+                #     first_not_nan = 0 #if zero not found in indiced of nans zeroth index is not nan then this can be used.
+
+                #the following three lines do a better job at the same task than the previous 10.
+                first_not_nan =  0
+                while np.isnan(coords[first_not_nan, 0]):
+                    first_not_nan+=1
+
+                df["displacement"] = np.linalg.norm(coords[first_not_nan] - coords, axis = 1)
 
                 complexity = lH(df, 30)
                 df["lH"] = complexity

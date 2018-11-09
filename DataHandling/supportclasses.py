@@ -148,6 +148,26 @@ class DataHandler:
 
                     try:
                         if len(stims) > 0:
+
+                            metadataframe["stimuli"] = [len(stims)]
+                            stimname = stims.message_on[0]
+                            if stimname.startswith("n"):
+                                r = int(stimname[1:4])
+                                g = int(stimname[4:7])
+                                b = int(stimname[7:])
+
+                                if r > g and r > b:
+                                    stimname = "red"
+                                elif g > r and g > b:
+                                    stimname = "green"
+                                elif b > g and b > r:
+                                    stimname = "blue"
+                            elif stimname == "wS":
+                                stimname = "white"
+                            elif stimname.lower().startswith("v"):
+                                stimname = "vibration"
+                            metadataframe["stimuli_name "] = [stimname]
+
                             counter = 1
                             for ii in stims.index:
                                 time_on = stims.time_on[ii]
@@ -158,13 +178,15 @@ class DataHandler:
                                         delta_on = (df[col][(df["time"]>= time_on) & (df["time"] <= time_on+30)].mean())-(df[col][(df["time"]>= time_on - 30) & (df["time"] <= time_on)].mean())
                                         delta_off = (df[col][(df["time"]>= time_off) & (df["time"] <= time_off+30)].mean())-(df[col][(df["time"]>= time_off - 30) & (df["time"] <= time_off)].mean())
 
-                                        metadataframe["deltaOn_"+stimname+"_"+col+"_"+str(counter).zfill(2)] = [delta_on]
-                                        metadataframe["deltaOff_"+stimname+"_"+col+"_"+str(counter).zfill(2)] = [delta_off]
+                                        metadataframe["deltaOn_"+col+"_"+str(counter).zfill(2)] = [delta_on]
+                                        metadataframe["deltaOff_"+col+"_"+str(counter).zfill(2)] = [delta_off]
                                 counter+=1
                     except Exception as e:
                         print(e)
 
-                    metadataframe["stimuli"] = [len(stims)]
+
+
+
                     metadataframe["stimuli_profile"] = [stims]
                     metadataframe["temperaturepath"] = [os.path.join(folder, "logged_temperatures.txt")]
                     metadataframes.append(metadataframe)
