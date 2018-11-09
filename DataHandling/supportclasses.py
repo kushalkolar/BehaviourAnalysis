@@ -166,6 +166,9 @@ class DataHandler:
                                 stimname = "white"
                             elif stimname.lower().startswith("v"):
                                 stimname = "vibration"
+                            else:
+                                stimname = "none"
+                                
                             metadataframe["stimuli_name "] = [stimname]
 
                             counter = 1
