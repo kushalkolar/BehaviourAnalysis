@@ -535,6 +535,7 @@
       <string>Statistiscs</string>
      </property>
      <addaction name="actionScan_for_significance"/>
+     <addaction name="actionPairwaise_Test_Categorical"/>
     </widget>
     <addaction name="actionLoad_Dataset_into_Viewer"/>
     <addaction name="menuSave_Selected_Data"/>
@@ -623,7 +624,7 @@
   </action>
   <action name="actionScan_for_significance">
    <property name="text">
-    <string>Scan for significance</string>
+    <string>Scan Categoricals</string>
    </property>
   </action>
   <action name="actionStatistics">
@@ -634,6 +635,11 @@
   <action name="actionRename_items_in_column">
    <property name="text">
     <string>Rename items in column</string>
+   </property>
+  </action>
+  <action name="actionPairwaise_Test_Categorical">
+   <property name="text">
+    <string>Pairwaise Test Categorical</string>
    </property>
   </action>
  </widget>

@@ -6,7 +6,8 @@ from DataViewerModule.pandasviewer_mainwindow import Ui_MainWindow
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
 from DataViewerModule.Tools.item_renamer import ItemRenamer
 from DataViewerModule.PandasModel import PandasModel 
-from DataViewerModule.scannermodule import SignificanceScanner
+from DataViewerModule.Tools.scannermodule import SignificanceScanner
+from DataViewerModule.Tools.pairwise_scanner import PairwiseScanner
 import sys
 import ast
 import pickle
@@ -108,12 +109,14 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.pushButtonTransformData.clicked.connect(self.transform)
         self.ui.pushButtonAddTransformToData.clicked.connect(self.add_transformation_to_data)
         self.ui.actionScan_for_significance.triggered.connect(self.start_significance_scanner)
+        self.ui.actionPairwaise_Test_Categorical.triggered.connect(self.start_pairwise_scanner)
 
         self.ui.pushButtonTest.clicked.connect(self.run_statistics)
         for test in ["Kruskal-Wallis", "Oneway ANOVA"]:
             self.ui.comboBoxStatisticalTests.addItem(test)
 
         self.ui.actionRename_items_in_column.triggered.connect(self.start_item_renamer)
+
 
     def contextMenuEvent_SelectedData(self, event):
         menu = QtWidgets.QMenu(self)
@@ -579,8 +582,11 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
         
     def start_significance_scanner(self):
-        significance_scanner = SignificanceScanner(df = self.df_selection)
+        significance_scanner = SignificanceScanner(parent_module=self)
         significance_scanner.show()
+    def start_pairwise_scanner(self):
+        pairwise_scanner = PairwiseScanner(parent_module=self)
+        pairwise_scanner.show()
         
     def run_statistics(self):
         test = self.ui.comboBoxStatisticalTests.currentText()

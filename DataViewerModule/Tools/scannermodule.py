@@ -1,7 +1,7 @@
 
 
 
-from DataViewerModule.scanner_ui import Ui_Form
+from DataViewerModule.Tools.scanner_ui import Ui_Form
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from scipy import stats
@@ -9,11 +9,12 @@ import pandas as pd
 import numpy as np
 
 class SignificanceScanner(QtWidgets.QWidget):
-    def __init__(self, parent = None, *args, df):
+    def __init__(self, parent = None, *args, parent_module = None):
         QtWidgets.QWidget.__init__(self, parent, *args)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
-        self.df = df
+        self.pm = parent_module
+        self.df = self.pm.df_selection
 
         self.ui.listWidgetAllColumns.addItems(self.df.columns)
         self.ui.pushButtonAddCat.clicked.connect(lambda: self.addToColumn(self.ui.listWidgetCategoricals))
@@ -35,7 +36,36 @@ class SignificanceScanner(QtWidgets.QWidget):
         self.ui.framePlotWidget.layout().addWidget(self.plot)
         self.ui.framePlotWidget.setVisible(False)
 
-        
+        self.ui.listWidgetCategoricals.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.listWidgetCategoricals.customContextMenuRequested.connect(self.contextMenuEventCategoricals)
+
+        self.ui.listWidgetNumericals.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.listWidgetNumericals.customContextMenuRequested.connect(self.contextMenuEventNumericals)
+
+        #Actions:
+        self.deleteSelectionCategoricalsAction = QtWidgets.QAction("Delete Selection", self,
+                                                       triggered=lambda: self.deleteSelection(self.ui.listWidgetCategoricals))
+        self.deleteSelectionNumericalsAction = QtWidgets.QAction("Delete Selection", self,
+                                                                   triggered=lambda: self.deleteSelection(
+                                                                       self.ui.listWidgetNumericals))
+
+    def contextMenuEventCategoricals(self, event):
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(self.deleteSelectionCategoricalsAction)
+        menu.popup(self.ui.listWidgetCategoricals.mapToGlobal(event))
+
+    def contextMenuEventNumericals(self, event):
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(self.deleteSelectionNumericalsAction)
+        menu.popup(self.ui.listWidgetNumericals.mapToGlobal(event))
+
+    def deleteSelection(self, listwidget):
+        selection = [item.text() for item in listwidget.selectedItems()]
+        present = [listwidget.item(i).text() for i in range(listwidget.count())]
+        to_add = [item for item in present if item not in selection]
+        listwidget.clear()
+        listwidget.addItems(to_add)
+
     def addToColumn(self, listwidget):
         selection = [item.text() for item in self.ui.listWidgetAllColumns.selectedItems()]
         present = [item.text() for item in listwidget.selectedItems()]
@@ -80,6 +110,7 @@ class SignificanceScanner(QtWidgets.QWidget):
                 if "anova" in test.lower():
                     pval = stats.f_oneway(*data_to_compare)[1]
                 else:
+
                     pval = stats.kruskal(*data_to_compare)[1]
                 if pval > alpha:
                     pval = False
@@ -99,5 +130,6 @@ class SignificanceScanner(QtWidgets.QWidget):
         self.plot.canvas.figure.tight_layout()
         self.plot.canvas.draw()
         print(pval_array)
-        
+
+
         

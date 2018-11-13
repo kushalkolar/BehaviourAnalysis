@@ -168,7 +168,7 @@ class DataHandler:
                                 stimname = "vibration"
                             else:
                                 stimname = "none"
-                                
+
                             metadataframe["stimuli_name "] = [stimname]
 
                             counter = 1
