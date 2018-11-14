@@ -23,6 +23,7 @@ class ItemRenamer(QtWidgets.QWidget):
         self.ui.pushButtonAddToChange.clicked.connect(self.add_items_to_rename)
 
         self.ui.pushButtonOverwrite.clicked.connect(self.overwrite)
+        self.ui.pushButtonOverwriteAll.clicked.connect(lambda: self.overwrite(all = True))
         self.ui.pushButtonRemoveSelection.clicked.connect(self.remove_selected_items)
 
     def setItemColumn(self):
@@ -61,12 +62,12 @@ class ItemRenamer(QtWidgets.QWidget):
         self.ui.listWidgetToRename.clear()
         self.ui.listWidgetToRename.addItems(all_items)
 
-    def overwrite(self):
+    def overwrite(self, all = False):
         if len(self.ui.lineEditNewName.text()) < 2:
             QtWidgets.QMessageBox.warning(self, "Short name warning", "For safety reasons you can not enter such a short name.")
         else:
             try:
-                #Do this with count and children etc! :-D
+
                 old_names = [self.ui.listWidgetToRename.item(i).text() for i in range(self.ui.listWidgetToRename.count())]
                 print(old_names)
                 new_name = self.ui.lineEditNewName.text()
@@ -74,7 +75,13 @@ class ItemRenamer(QtWidgets.QWidget):
                 col = self.ui.listWidgetAllColumns.currentItem().text()
                 for name in old_names:
                     self.pm.df_selection[col][self.pm.df_selection[col] == name] = new_name
+                    if all:
+                        self.pm.df[col][self.pm.df[col] == name] = new_name
+
 
                 self.pm.set_data(self.pm.ui.tableWidgetSelectedData, self.pm.df_selection)
+                if all:
+                    self.pm.set_data(self.pm.ui.tableWidgetAllData, self.pm.df)
+
             except Exception as e:
                 print(e)
