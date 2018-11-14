@@ -27,7 +27,6 @@ class PairwiseScanner(QtWidgets.QWidget):
                                     "exponential"]
         for transform in self.transformation_names:
             self.ui.comboBoxTransformations.addItem(transform)
-        self.ui.comboBoxTransformations.setEnabled(False)
 
         for test in ["MannWhitney U", "Students T-test"]:
             self.ui.comboBoxTests.addItem(test)
@@ -109,11 +108,28 @@ class PairwiseScanner(QtWidgets.QWidget):
                         pairs.append(pair)
         return(pairs)
 
+    def _transorm(self, to_transform, transformation):
+        if transformation == "none":
+            transformed = to_transform
+        elif transformation == "square root":
+            transformed = np.sqrt(to_transform)
+        elif transformation == "natural logarithm":
+            transformed = np.log(to_transform)
+        elif transformation == "reciprocal":
+            transformed = 1 / to_transform
+        elif transformation == "reciprocal sqrt":
+            transformed = 1 / (np.sqrt(to_transform))
+        else:
+            transformed = to_transform ** 2
+        return transformed
+
     def scan(self):
         try:
             pairs = self.find_pairs()
             test = self.ui.comboBoxTests.currentText()
             alpha = self.ui.doubleSpinBoxAlpha.value()
+            transformation = self.ui.comboBoxTransformations.currentText()
+
             if self.ui.checkBoxBonferroni.isChecked():
                 alpha = alpha / len(pairs)
             results = ""
@@ -124,6 +140,7 @@ class PairwiseScanner(QtWidgets.QWidget):
                 numerical_pval_array = "none"
                 for pair in pairs:
                     groups = [self.df[numerical][self.df[self.categorical] == pair[0]].dropna().values,self.df[numerical][self.df[self.categorical] == pair[1]].dropna().values]
+                    groups = [self._transorm(group, transformation) for group in groups]
                     if "whitn" in test.lower():
                         pval = stats.mannwhitneyu(groups[0], groups[1])[1]
                     else:
