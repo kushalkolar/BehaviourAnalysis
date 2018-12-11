@@ -33,7 +33,13 @@ class ItemRenamer(QtWidgets.QWidget):
             self.ui.listWidgetUniqueItems.clear()
             self.ui.listWidgetUniqueItems.addItems(unique_items)
         except Exception as e:
-            print(e)
+            if QtWidgets.QMessageBox.warning(self, "Need to convert to string for renaming operation",
+                                             "A conversion from the current datatype to string is required for the renaming operation. Continue?",
+                                             QtWidgets.QMessageBox.Ok,
+                                             QtWidgets.QMessageBox.Cancel) == QtWidgets.QMessageBox.Ok:
+                self.pm.df_selection[col] = self.pm.df_selection[col].astype("str")
+                self.pm.df[col] = self.pm.df[col].astype("str")
+                self.setItemColumn()
 
     def search_columns(self):
         query = self.ui.lineEditSearchColumns.text()
@@ -52,8 +58,6 @@ class ItemRenamer(QtWidgets.QWidget):
     def add_items_to_rename(self):
         present_items = [self.ui.listWidgetToRename.item(i).text() for i in range(self.ui.listWidgetToRename.count())]
         items = [item.text() for item in self.ui.listWidgetUniqueItems.selectedItems() if item.text() not in present_items]
-        print(present_items)
-        print(items)
         self.ui.listWidgetToRename.addItems(items)
 
     def remove_selected_items(self):
@@ -67,11 +71,8 @@ class ItemRenamer(QtWidgets.QWidget):
             QtWidgets.QMessageBox.warning(self, "Short name warning", "For safety reasons you can not enter such a short name.")
         else:
             try:
-
                 old_names = [self.ui.listWidgetToRename.item(i).text() for i in range(self.ui.listWidgetToRename.count())]
-                print(old_names)
                 new_name = self.ui.lineEditNewName.text()
-                print(new_name)
                 col = self.ui.listWidgetAllColumns.currentItem().text()
                 for name in old_names:
                     self.pm.df_selection[col][self.pm.df_selection[col] == name] = new_name
@@ -82,6 +83,10 @@ class ItemRenamer(QtWidgets.QWidget):
                 self.pm.set_data(self.pm.ui.tableWidgetSelectedData, self.pm.df_selection)
                 if all:
                     self.pm.set_data(self.pm.ui.tableWidgetAllData, self.pm.df)
+
+                self.setItemColumn()
+                self.search_items()
+                self.ui.listWidgetToRename.clear()
 
             except Exception as e:
                 print(e)

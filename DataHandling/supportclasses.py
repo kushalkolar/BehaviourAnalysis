@@ -129,6 +129,9 @@ class DataHandler:
         """
         metadataframes = []
         for folder in tqdm([os.path.join(self.path, x) for x in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, x)) and "exp" in x.lower()], desc="Gathering all single-value and metadata descriptors"):
+            for f in os.listdir(folder):
+                if "temperature" in f.lower():
+                    temperature = pd.read_csv(os.path.join(folder, f), delimiter = "\t")
 
             for f in os.listdir(folder):
                 if "dataframe" in f.lower() and "pickle" in f.lower():
@@ -140,7 +143,7 @@ class DataHandler:
                             metadataframe[col + "_median"] = [df[col].median()]
                             metadataframe[col + "_min"] = [df[col].min()]
                             metadataframe[col + "_max"] = [df[col].max()]
-
+                    metadataframe["totaldist"] = [np.sum(df["distances030"])]
                     metadataframe["percentage_notnull"] = [len(df.X.notnull()) / len(df)]
 
 
@@ -169,7 +172,21 @@ class DataHandler:
                             else:
                                 stimname = "none"
 
-                            metadataframe["stimuli_name "] = [stimname]
+                            metadataframe["stimuli_name"] = [stimname]
+
+                            try:
+                                metadataframe["temperature_min"] = [temperature["temperature"].min()]
+                                metadataframe["temperature_max"] = [temperature["temperature"].max()]
+                                metadataframe["temperature_mean"] = [temperature["temperature"].mean()]
+                                metadataframe["temperature_median"] = [temperature["temperature"].median()]
+
+                                if np.abs(temperature["temperature"].mean() - 14) > np.abs(temperature["temperature"].mean() - 18):
+                                    metadataframe["temperature"] = [18]
+                                else:
+                                    metadataframe["temperature"] = [14]
+                            except Exception as e:
+                                print("\n Can`t do temperatures ", e)
+
 
                             counter = 1
                             for ii in stims.index:
@@ -178,8 +195,13 @@ class DataHandler:
                                 stimname = stims.message_on[ii]
                                 for col in df.columns:
                                     if col not in ["X", "Y", "X_zero", "Y_zero", "time", "Frame", "stim_on"]:
+                                        # This is the original code giving one second before and after.
                                         delta_on = (df[col][(df["time"]>= time_on) & (df["time"] <= time_on+30)].mean())-(df[col][(df["time"]>= time_on - 30) & (df["time"] <= time_on)].mean())
                                         delta_off = (df[col][(df["time"]>= time_off) & (df["time"] <= time_off+30)].mean())-(df[col][(df["time"]>= time_off - 30) & (df["time"] <= time_off)].mean())
+
+                                        #This is the specific code to get a window of -10 seconds, 0.5 seconds latency and 2.5 seconds of after-stimulus.
+                                        # delta_on = (df[col][(df["time"]>= time_on + 15) & (df["time"] <= time_on+90)].mean())-(df[col][(df["time"]>= time_on - 300) & (df["time"] <= time_on)].mean())
+                                        # delta_off = (df[col][(df["time"]>= time_off + 15) & (df["time"] <= time_off+90)].mean())-(df[col][(df["time"]>= time_off - 300) & (df["time"] <= time_off)].mean())
 
                                         metadataframe["deltaOn_"+col+"_"+str(counter).zfill(2)] = [delta_on]
                                         metadataframe["deltaOff_"+col+"_"+str(counter).zfill(2)] = [delta_off]
