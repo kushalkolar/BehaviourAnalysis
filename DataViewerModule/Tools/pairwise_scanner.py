@@ -34,7 +34,7 @@ class PairwiseScanner(QtWidgets.QWidget):
 
         self.ui.pushButtonAddNum.clicked.connect(lambda: self.addToColumn(self.ui.listWidgetNumericals))
         self.ui.pushButtonAddCat.clicked.connect(self.addCategorical)
-        self.ui.pushButtonFindSignificance.clicked.connect(self.scan)
+        self.ui.pushButtonRunPairs.clicked.connect(self.scan)
 
         self.ui.listWidgetCategorical.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.listWidgetCategorical.customContextMenuRequested.connect(self.contextMenuEventCategorical)
@@ -101,9 +101,9 @@ class PairwiseScanner(QtWidgets.QWidget):
         pairs = []
         for x in selection:
             for y in present:
-                if x != y:
-                    pair = [x,y]
-                    pair.sort()
+                if x != y and y not in selection:
+                    pair = [y, x]
+                    # pair.sort()
                     if pair not in pairs:
                         pairs.append(pair)
         return(pairs)
@@ -177,5 +177,12 @@ class PairwiseScanner(QtWidgets.QWidget):
             self.plot.canvas.draw()
         except Exception as e:
             print(e)
+
+    def plot_array(self, array, x_labels, y_labels, widget):
+        ax = widget.canvas.figure.gca()
+        widget.canvas.clear()
+        maxval =  np.abs(array).max()
+        ax.imshow(array, vmin=-maxval, vmax=maxval)
+        ax.set_xticks()
 
 

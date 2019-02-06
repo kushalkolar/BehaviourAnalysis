@@ -443,5 +443,5 @@ class Ui_MainWindow(object):
         self.actionScan_for_significance.setText(_translate("MainWindow", "Scan Categoricals"))
         self.actionStatistics.setText(_translate("MainWindow", "Statistics"))
         self.actionRename_items_in_column.setText(_translate("MainWindow", "Rename items in column"))
-        self.actionPairwaise_Test_Categorical.setText(_translate("MainWindow", "Pairwaise Test Categorical"))
+        self.actionPairwaise_Test_Categorical.setText(_translate("MainWindow", "Barcodes and Pairwise Testing"))
 

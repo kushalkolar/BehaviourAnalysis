@@ -231,7 +231,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox"/>
+         <widget class="QComboBox" name="comboBoxSSMDtype"/>
         </item>
         <item>
          <widget class="QCheckBox" name="checkBox">
@@ -290,7 +290,7 @@
          </attribute>
          <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="0">
-           <widget class="QFrame" name="frame_4">
+           <widget class="QFrame" name="frameMaskedPlotWidget">
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>

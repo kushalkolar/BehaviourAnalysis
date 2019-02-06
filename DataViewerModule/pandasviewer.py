@@ -8,6 +8,7 @@ from DataViewerModule.Tools.item_renamer import ItemRenamer
 from DataViewerModule.PandasModel import PandasModel 
 from DataViewerModule.Tools.scannermodule import SignificanceScanner
 from DataViewerModule.Tools.pairwise_scanner import PairwiseScanner
+from DataViewerModule.Tools.ssmd_scanner import SSMDScanner
 import sys
 import ast
 import pickle
@@ -585,8 +586,12 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         significance_scanner = SignificanceScanner(parent_module=self)
         significance_scanner.show()
     def start_pairwise_scanner(self):
-        pairwise_scanner = PairwiseScanner(parent_module=self)
-        pairwise_scanner.show()
+        #pairwise_scanner = PairwiseScanner(parent_module=self)
+        try:
+            pairwise_scanner = SSMDScanner(parent_module = self)
+            pairwise_scanner.show()
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(self, "Error starting scannermodule", "This is what the computer has to say: \n '" + str(e) + " \n \n Have you selected any data?")
         
     def run_statistics(self):
         test = self.ui.comboBoxStatisticalTests.currentText()

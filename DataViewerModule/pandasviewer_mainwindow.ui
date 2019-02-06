@@ -639,7 +639,7 @@
   </action>
   <action name="actionPairwaise_Test_Categorical">
    <property name="text">
-    <string>Pairwaise Test Categorical</string>
+    <string>Barcodes and Pairwise Testing</string>
    </property>
   </action>
  </widget>
