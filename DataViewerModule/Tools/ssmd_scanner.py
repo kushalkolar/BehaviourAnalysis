@@ -8,6 +8,7 @@ from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
 from scipy import stats
 import pandas as pd
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
@@ -73,13 +74,30 @@ class SSMDScanner(PairwiseScanner):
             pval_array = "none"
             ssmd_array = "none"
             numericals = [self.ui.listWidgetNumericals.item(i).text() for i in range(self.ui.listWidgetNumericals.count())]
+            failed_date_matches = []
             for numerical in tqdm(numericals):
                 results += "\n\n****    "+numerical+"    **** \n \n"
                 numerical_pval_array = "none"
                 local_ssmd_array = "none"
                 for pair in pairs:
-                    groups = [self.df[numerical][self.df[self.categorical] == pair[0]].dropna().values,self.df[numerical][self.df[self.categorical] == pair[1]].dropna().values]
+                    if self.ui.checkBoxDateMatching.isChecked():
+                        dates = self.df["date"].loc[self.df[self.categorical] == pair[0]].unique()
+                        print(dates)
+                        group1 = self.df[numerical].loc[self.df[self.categorical] == pair[0]].dropna().values
+                        group2 = self.df[numerical].loc[(self.df[self.categorical] == pair[1]) & (self.df["date"].isin(dates))].dropna().values
+                        if len(group2) < 5:
+                            group2 = self.df[numerical].loc[self.df[self.categorical] == pair[1]]
+                            if pair not in failed_date_matches:
+                                failed_date_matches.append(pair)
+                        groups = [group1, group2]
+
+                    elif not self.ui.checkBoxDateMatching.isChecked():
+                        groups = [self.df[numerical].loc[self.df[self.categorical] == pair[0]].dropna().values, self.df[numerical].loc[self.df[self.categorical] == pair[1]].dropna().values]
+
+
+
                     groups = [self._transorm(group, transformation) for group in groups]
+
                     if "whitn" in test.lower():
                         pval = stats.mannwhitneyu(groups[0], groups[1])[1]
                     else:
@@ -114,7 +132,10 @@ class SSMDScanner(PairwiseScanner):
                     ssmd_array = local_ssmd_array
 
 
+
             self.ui.textEditResults.setText(results)
+
+
 
             print(pval_array)
             pval_array[pval_array < alpha] = 0
@@ -122,6 +143,11 @@ class SSMDScanner(PairwiseScanner):
 
             masked_ssmd_array = ssmd_array.copy()
             masked_ssmd_array[pval_array == 1] = np.nan
+
+            to_save = pd.DataFrame(data=ssmd_array, columns=numericals)
+            to_save["categorical"] = [x[0]+" vs "+x[1] for x in pairs]
+            to_save.to_csv(os.path.join(self.pm.path, "SSMD_array.txt"), sep="\t",)
+            to_save = None
 
             self.plot.canvas.clear()
             ax = self.plot.canvas.figure.gca()
@@ -154,10 +180,15 @@ class SSMDScanner(PairwiseScanner):
             self.maskedplot.canvas.figure.tight_layout()
             self.maskedplot.canvas.draw()
 
+            if self.ui.checkBoxDateMatching.isChecked() and len(failed_date_matches) > 0:
+                failed_matches = ""
+                for match in failed_date_matches:
+                    failed_matches +=  "\n"+str(match[0])+" vs "+str(match[1])
+                QtWidgets.QMessageBox.warning(self, "Date Matching Warning", "Date Matching failed for the following: \n"+failed_matches+" \n \n Comparison completed without date matching.")
 
         except Exception as e:
             print(e)
 
 
 if __name__ == "__main__":
-    ssmd = SSMD_scanner(parent_module = window.pv)
+    ssmd = SSMDScanner(parent_module = window.pv)

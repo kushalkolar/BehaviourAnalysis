@@ -234,7 +234,7 @@
          <widget class="QComboBox" name="comboBoxSSMDtype"/>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox">
+         <widget class="QCheckBox" name="checkBoxDateMatching">
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
           </property>
