@@ -135,7 +135,15 @@ class SSMDScanner(PairwiseScanner):
 
             self.ui.textEditResults.setText(results)
 
+            to_save = pd.DataFrame(data=ssmd_array, columns=numericals)
+            to_save["categorical"] = [x[0]+" vs "+x[1] for x in pairs]
+            to_save.to_csv(os.path.join(self.pm.path, time.strftime("%Y%m%d%H%M%S")+"_SSMD_array.txt"), sep="\t",)
 
+            to_save = pd.DataFrame(data=pval_array, columns=numericals)
+            to_save["categorical"] = [x[0] + " vs " + x[1] for x in pairs]
+            to_save.to_csv(os.path.join(self.pm.path, time.strftime("%Y%m%d%H%M%S") + "_pval_array.txt"), sep = "\t",)
+
+            to_save=None
 
             print(pval_array)
             pval_array[pval_array < alpha] = 0
@@ -143,11 +151,6 @@ class SSMDScanner(PairwiseScanner):
 
             masked_ssmd_array = ssmd_array.copy()
             masked_ssmd_array[pval_array == 1] = np.nan
-
-            to_save = pd.DataFrame(data=ssmd_array, columns=numericals)
-            to_save["categorical"] = [x[0]+" vs "+x[1] for x in pairs]
-            to_save.to_csv(os.path.join(self.pm.path, "SSMD_array.txt"), sep="\t",)
-            to_save = None
 
             self.plot.canvas.clear()
             ax = self.plot.canvas.figure.gca()
