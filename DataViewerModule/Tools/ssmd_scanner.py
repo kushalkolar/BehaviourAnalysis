@@ -32,8 +32,8 @@ class SSMDScanner(PairwiseScanner):
         self.setWindowTitle("SSMD")
         self.setWindowIcon(QtGui.QIcon("icons/ssmd.png"))
 
-        self.ui.tabWidget.setTabText(0,"SSMD Graph")
-        self.ui.tabWidget.setTabText(1,"SSMD Values")
+        self.ui.tabWidget.setTabText(0,"P-Value Graph")
+        self.ui.tabWidget.setTabText(1,"SSMD Graph")
         
         # self.ui.comboBoxTransformations.clear()
         # for x in ["median", "mean"]:
@@ -153,6 +153,9 @@ class SSMDScanner(PairwiseScanner):
             masked_ssmd_array = ssmd_array.copy()
             masked_ssmd_array[pval_array == 1] = np.nan
 
+            maxval = np.max(np.abs(ssmd_array))
+            minval = -maxval
+
             self.plot.canvas.clear()
             ax = self.plot.canvas.figure.gca()
             ax.imshow(pval_array, cmap="brg_r")
@@ -166,7 +169,7 @@ class SSMDScanner(PairwiseScanner):
 
             self.SSMDplot.canvas.clear()
             ax = self.SSMDplot.canvas.figure.gca()
-            ax.imshow(ssmd_array, cmap="bwr")
+            ax.imshow(ssmd_array, vmin = minval, vmax = maxval, cmap="bwr")
             ax.set_xticks([x for x in range(len(numericals))])
             ax.set_xticklabels(numericals, rotation=90)
             ax.set_yticks([x for x in range(len(pairs))])
@@ -176,7 +179,7 @@ class SSMDScanner(PairwiseScanner):
 
             self.maskedplot.canvas.clear()
             ax = self.maskedplot.canvas.figure.gca()
-            ax.imshow(masked_ssmd_array, cmap="bwr")
+            ax.imshow(masked_ssmd_array, vmin = minval, vmax = maxval, cmap="bwr")
             ax.set_xticks([x for x in range(len(numericals))])
             ax.set_xticklabels(numericals, rotation=90)
             ax.set_yticks([x for x in range(len(pairs))])
