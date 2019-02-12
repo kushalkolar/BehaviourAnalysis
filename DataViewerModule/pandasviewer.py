@@ -14,6 +14,7 @@ import ast
 import pickle
 import os
 from scipy import stats
+from sklearn.preprocessing import scale, minmax_scale
 
 class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None,*args, df = "none", path = None):
@@ -25,7 +26,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("Data Explorer")
         self.setWindowIcon(QtGui.QIcon("icons/pickle.png"))
         self.show()
-        
+
         self.ui.treeWidgetAllColums.setVisible(False)
         self.path = path
         try:
@@ -40,11 +41,13 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         except Exception as e:
             self.df = pd.DataFrame()
 #            QtWidgets.QMessageBox.warning(self, "Could not open DataFrame", str(e))
-            
+
+
         self.set_data(self.ui.tableWidgetAllData, self.df)
         self.set_column_widget()
         
         self.filters = {}
+
         
         self.ui.pushButtonAddToSelection.clicked.connect(self.add_to_selection)
         self.ui.pushButtonRemoveFromSelection.clicked.connect(self.remove_from_selection)
@@ -112,6 +115,9 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.ui.actionScan_for_significance.triggered.connect(self.start_significance_scanner)
         self.ui.actionPairwaise_Test_Categorical.triggered.connect(self.start_pairwise_scanner)
 
+        self.ui.actionminmax_scale.triggered.connect(lambda: self.normalize_data("minmax"))
+        self.ui.actionmean_scale.triggered.connect(lambda: self.normalize_data("mean"))
+
         self.ui.pushButtonTest.clicked.connect(self.run_statistics)
         for test in ["Kruskal-Wallis", "Oneway ANOVA"]:
             self.ui.comboBoxStatisticalTests.addItem(test)
@@ -151,11 +157,41 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
                     self.df = pd.read_pickle(path)
         except Exception as e:
             print(e)
+
         self.df_selection = pd.DataFrame()
+        
         self.set_data(self.ui.tableWidgetAllData, self.df)
         self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
         self.set_column_widget()
 
+    def check_datatype(self):
+        
+        def find_datatype(data):
+            try:
+                if len(data.dropna().unique()) / len(data.dropna()) < 0.08:
+                    return("categorical")
+                elif data.dtype == type("str") or data.dtype == "O" or "index" in col.lower():
+                    return("categorical")
+                else:
+                    return("numerical")
+            except:
+                return("categorical")
+        
+        if not hasattr(self, "datatype_columns"):
+            self.datatype_columns = {}
+            
+            for col in self.df.columns:
+                self.datatype_columns[col] = {"datatype":find_datatype(self.df[col]),
+                                              "userdefined" : False}
+        else:
+            for col in self.df.columns:
+                if col in self.datatype_columns.keys():
+                    if not self.datatype_columns[col]["userdefined"]:
+                        self.datatype_columns[col] = {"datatype":find_datatype(self.df[col]),
+                                                      "userdefined" : False}
+                else:
+                    self.datatype_columns[col] = {"datatype":find_datatype(self.df[col]),
+                                                  "userdefined" : False}
 
     # def set_data(self, tableView, df):
     #     model = PandasModel(df)
@@ -174,7 +210,19 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
     def set_column_widget(self):
         self.ui.listWidgetAllColumns.clear()
         self.ui.listWidgetAllColumns.addItems(self.df.columns)
-
+        self.colour_listwidget_by_datatype(self.ui.listWidgetAllColumns)
+    def colour_listwidget_by_datatype(self, widget):
+        try:
+            self.check_datatype()
+            for i in range(widget.count()):
+                item = widget.item(i)
+                text = item.text()
+                if self.datatype_columns[text]['datatype'] == "categorical":
+                    item.setBackground(QtGui.QColor("orange"))
+                else:
+                    item.setBackground(QtGui.QColor("lightgreen"))
+        except Exception as e:
+            print(str(e))
 #THIS IS CODE TO SHOW COLUMNS IN A TREE WIDGET ITEM! SET VISIBLE TO TRUE IN __init__ TO SHOW THE WIDGET
 #        to_branch = list(set([x.split("_")[0] for  x in self.df.columns if len(x.split("_"))>1]))
 #        singles = list(set([x for x in self.df.columns if len(x.split("_")) == 1 and x not in to_branch]))
@@ -221,6 +269,7 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         for item in selection:
             self.ui.comboBoxSelectedColumns.addItem(item)
         self.update_plotting_ui()
+        self.colour_listwidget_by_datatype(self.ui.listWidgetSelectedColumns)
 
     def update_unique_values(self):
         self.ui.listWidgetUniqueValues.clear()
@@ -581,7 +630,19 @@ class PandasViewer(QtGui.QMainWindow, Ui_MainWindow):
         self.df_selection[colname] = transformed
         self.update_plotting_ui()
         self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
-        
+
+    def normalize_data(self, scaling_type = "minmax"):
+        to_scale = [col for col in self.df_selection.columns if self.datatype_columns[col]["datatype"] == "numerical"]
+        if scaling_type == "minmax":
+            minimum, ok = QtWidgets.QInputDialog.getDouble(self, "Set min value", "Input a number", value=-1)
+            maximum, ok = QtWidgets.QInputDialog.getDouble(self, "Set max value", "Input a number", value=1)
+            self.df_selection[to_scale] = minmax_scale(self.df_selection[to_scale], feature_range=(minimum,maximum))
+        else:
+            self.df_selection[to_scale] = scale(self.df_selection[to_scale])
+
+        self.set_data(self.ui.tableWidgetSelectedData, self.df_selection)
+
+
     def start_significance_scanner(self):
         significance_scanner = SignificanceScanner(parent_module=self)
         significance_scanner.show()

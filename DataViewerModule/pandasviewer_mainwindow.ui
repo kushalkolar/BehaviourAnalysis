@@ -537,10 +537,19 @@
      <addaction name="actionScan_for_significance"/>
      <addaction name="actionPairwaise_Test_Categorical"/>
     </widget>
+    <widget class="QMenu" name="menuNormalize_Selected_Data">
+     <property name="title">
+      <string>Normalize Selected Data</string>
+     </property>
+     <addaction name="actionminmax_scale"/>
+     <addaction name="actionmean_scale"/>
+    </widget>
     <addaction name="actionLoad_Dataset_into_Viewer"/>
     <addaction name="menuSave_Selected_Data"/>
-    <addaction name="menuStatistiscs"/>
     <addaction name="actionRename_items_in_column"/>
+    <addaction name="separator"/>
+    <addaction name="menuStatistiscs"/>
+    <addaction name="menuNormalize_Selected_Data"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -640,6 +649,22 @@
   <action name="actionPairwaise_Test_Categorical">
    <property name="text">
     <string>Barcodes and Pairwise Testing</string>
+   </property>
+  </action>
+  <action name="actionminmax_scale">
+   <property name="text">
+    <string>minmax_scale</string>
+   </property>
+   <property name="toolTip">
+    <string>Forces data to the range [-1,1]</string>
+   </property>
+  </action>
+  <action name="actionmean_scale">
+   <property name="text">
+    <string>mean_scale</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardizes.&lt;br/&gt;Forces zero mean and unit variance so that for each feature:&lt;/p&gt;&lt;p&gt;mean = 0,&lt;br/&gt;std = 1.0.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
  </widget>
