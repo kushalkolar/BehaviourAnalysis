@@ -1,7 +1,6 @@
 from DataViewerModule.Tools.pairwise_categorical_ui import Ui_Form
 from DataViewerModule.PlottingModule.PlottingClasses import PlotWidget
 from DataViewerModule.Tools.pairwise_scanner import  PairwiseScanner
-
 #from pairwise_categorical_ui import Ui_Form
 #from DataViewerModule.Tools.pairwise_categorical_ui import Ui_Form
 from pyqtgraph.Qt import QtCore, QtGui, QtWidgets
@@ -53,6 +52,8 @@ class SSMDScanner(PairwiseScanner):
         self.maskedplot = PlotWidget()
         self.ui.frameMaskedPlotWidget.layout().addWidget(self.maskedplot)
 
+        self.ui.pushButtonExportArrays.clicked.connect(self.export_arrays)
+
         self.show()
 
     def get_ssmd(self, group1, group2, mode="mean"):
@@ -72,11 +73,12 @@ class SSMDScanner(PairwiseScanner):
             if self.ui.checkBoxBonferroni.isChecked():
                 alpha = alpha / len(pairs)
             results = ""
-            pval_array = "none"
-            ssmd_array = "none"
+            self.pval_array = "none"
+            self.ssmd_array = "none"
             numericals = [self.ui.listWidgetNumericals.item(i).text() for i in range(self.ui.listWidgetNumericals.count())]
+            self.numericals = numericals
             failed_date_matches = []
-            for numerical in tqdm(numericals):
+            for numerical in tqdm(self.numericals):
                 results += "\n\n****    "+numerical+"    **** \n \n"
                 numerical_pval_array = "none"
                 local_ssmd_array = "none"
@@ -121,69 +123,61 @@ class SSMDScanner(PairwiseScanner):
 
 
                 try:
-                    pval_array = np.hstack([pval_array, numerical_pval_array])
+                    self.pval_array = np.hstack([self.pval_array, numerical_pval_array])
                 except Exception as e:
                     print(e)
-                    pval_array = numerical_pval_array
+                    self.pval_array = numerical_pval_array
 
 
                 try:
-                    ssmd_array = np.hstack([ssmd_array, local_ssmd_array])
+                    self.ssmd_array = np.hstack([self.ssmd_array, local_ssmd_array])
                 except Exception as e:
-                    ssmd_array = local_ssmd_array
+                    self.ssmd_array = local_ssmd_array
 
 
 
             self.ui.textEditResults.setText(results)
 
-            to_save = pd.DataFrame(data=ssmd_array, columns=numericals)
-            to_save["categorical"] = [x[0]+" vs "+x[1] for x in pairs]
-            to_save.to_csv(os.path.join(self.pm.path, time.strftime("%Y%m%d%H%M%S")+"_SSMD_array.txt"), sep="\t",)
+            masked_pval_array = self.pval_array.copy()
+            masked_pval_array[self.pval_array < alpha] = 0
+            masked_pval_array[self.pval_array > alpha] = 1
 
-            to_save = pd.DataFrame(data=pval_array, columns=numericals)
-            to_save["categorical"] = [x[0] + " vs " + x[1] for x in pairs]
-            to_save.to_csv(os.path.join(self.pm.path, time.strftime("%Y%m%d%H%M%S") + "_pval_array.txt"), sep = "\t",)
+            self.masked_ssmd_array = self.ssmd_array.copy()
+            self.masked_ssmd_array[masked_pval_array == 1] = np.nan
 
-            to_save=None
-
-            print(pval_array)
-            pval_array[pval_array < alpha] = 0
-            pval_array[pval_array > alpha] = 1
-
-            masked_ssmd_array = ssmd_array.copy()
-            masked_ssmd_array[pval_array == 1] = np.nan
-
-            maxval = np.max(np.abs(ssmd_array))
+            maxval = np.max(np.abs(self.ssmd_array))
             minval = -maxval
+
+            self.categoricals = [x[0]+" vs "+x[1] for x in pairs]
 
             self.plot.canvas.clear()
             ax = self.plot.canvas.figure.gca()
-            ax.imshow(pval_array, cmap="brg_r")
+            ax.imshow(masked_pval_array, cmap="brg_r")
             ax.set_xticks([x for x in range(len(numericals))])
             ax.set_xticklabels(numericals, rotation=90)
             ax.set_yticks([x for x in range(len(pairs))])
-            ax.set_yticklabels([x[0]+" vs "+x[1] for x in pairs])
+            ax.set_yticklabels(self.categoricals)
             self.plot.canvas.figure.tight_layout()
             self.plot.canvas.draw()
 
 
             self.SSMDplot.canvas.clear()
             ax = self.SSMDplot.canvas.figure.gca()
-            ax.imshow(ssmd_array, vmin = minval, vmax = maxval, cmap="bwr")
+            ax.imshow(self.ssmd_array, vmin = minval, vmax = maxval, cmap="bwr")
             ax.set_xticks([x for x in range(len(numericals))])
             ax.set_xticklabels(numericals, rotation=90)
             ax.set_yticks([x for x in range(len(pairs))])
-            ax.set_yticklabels([x[0]+" vs "+x[1] for x in pairs])
+            ax.set_yticklabels(self.categoricals)
             self.SSMDplot.canvas.figure.tight_layout()
             self.SSMDplot.canvas.draw()
 
             self.maskedplot.canvas.clear()
             ax = self.maskedplot.canvas.figure.gca()
-            ax.imshow(masked_ssmd_array, vmin = minval, vmax = maxval, cmap="bwr")
+            ax.imshow(self.masked_ssmd_array, vmin = minval, vmax = maxval, cmap="bwr")
             ax.set_xticks([x for x in range(len(numericals))])
             ax.set_xticklabels(numericals, rotation=90)
             ax.set_yticks([x for x in range(len(pairs))])
-            ax.set_yticklabels([x[0]+" vs "+x[1] for x in pairs])
+            ax.set_yticklabels(self.categoricals)
             self.maskedplot.canvas.figure.tight_layout()
             self.maskedplot.canvas.draw()
 
@@ -191,11 +185,29 @@ class SSMDScanner(PairwiseScanner):
                 failed_matches = ""
                 for match in failed_date_matches:
                     failed_matches +=  "\n"+str(match[0])+" vs "+str(match[1])
-                QtWidgets.QMessageBox.warning(self, "Date Matching Warning", "Date Matching failed for the following: \n"+failed_matches+" \n \n Comparison completed without date matching.")
+                QtWidgets.QMessageBox.warning(self, "Date Matching Warning", "Date Matching failed for the following: \n"+failed_matches+" \n \n Comparison completed without date matching for these instances.")
 
         except Exception as e:
             print(e)
 
+    def export_arrays(self):
+        attempts = 0
+        try:
+            attempts += 1
+            for array, name in zip([self.ssmd_array, self.masked_ssmd_array, self.pval_array],["SSMD","Masked_SSMD","Pval"]):
+                to_save = pd.DataFrame(data=array, columns=self.numericals)
+                to_save["categorical"] = self.categoricals
+                to_save.to_csv(os.path.join(self.pm.path, time.strftime("%Y%m%d%H%M%S_") + name +"_array.txt"), sep="\t", )
+
+            to_save = None
+            return
+        except:
+            if attempts > 2:
+                QtWidgets.QMessageBox.warning("Failed to output arrays after two attempts.")
+                return
+            else:
+                self.scan()
+                self.export_arrays()
 
 if __name__ == "__main__":
     ssmd = SSMDScanner(parent_module = window.pv)

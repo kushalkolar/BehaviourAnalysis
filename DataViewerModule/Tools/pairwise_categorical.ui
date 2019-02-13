@@ -245,6 +245,30 @@
         </item>
        </layout>
       </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="pushButtonRunPairs">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Run Pairs</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonExportArrays">
+          <property name="text">
+           <string>Export arrays</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item row="3" column="0">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
@@ -311,13 +335,6 @@
           </item>
          </layout>
         </widget>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="pushButtonRunPairs">
-        <property name="text">
-         <string>Run Pairs</string>
-        </property>
        </widget>
       </item>
      </layout>
