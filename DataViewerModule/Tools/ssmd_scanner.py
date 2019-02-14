@@ -68,7 +68,8 @@ class SSMDScanner(PairwiseScanner):
             test = self.ui.comboBoxTests.currentText()
             alpha = self.ui.doubleSpinBoxAlpha.value()
             transformation = self.ui.comboBoxTransformations.currentText()
-            ssmd_mode = self.ui.comboBoxSSMDtype.currentText()
+            self.ssmd_mode = self.ui.comboBoxSSMDtype.currentText()
+
 
             if self.ui.checkBoxBonferroni.isChecked():
                 alpha = alpha / len(pairs)
@@ -114,7 +115,7 @@ class SSMDScanner(PairwiseScanner):
                     else:
                         numerical_pval_array = np.vstack([numerical_pval_array, np.array([pval])])
 
-                    ssmd = self.get_ssmd(groups[0], groups[1], mode=ssmd_mode)
+                    ssmd = self.get_ssmd(groups[0], groups[1], mode=self.ssmd_mode)
 
                     if local_ssmd_array == "none":
                         local_ssmd_array = np.array([ssmd])
@@ -197,7 +198,7 @@ class SSMDScanner(PairwiseScanner):
             for array, name in zip([self.ssmd_array, self.masked_ssmd_array, self.pval_array],["SSMD","Masked_SSMD","Pval"]):
                 to_save = pd.DataFrame(data=array, columns=self.numericals)
                 to_save["categorical"] = self.categoricals
-                to_save.to_csv(os.path.join(self.pm.path, time.strftime("%Y%m%d%H%M%S_") + name +"_array.txt"), sep="\t", )
+                to_save.to_csv(os.path.join(self.pm.path, time.strftime("%Y%m%d%H%M%S_")+ self.ssmd_mode+"_"+ name +"_array.csv"), sep="\t", )
 
             to_save = None
             return
