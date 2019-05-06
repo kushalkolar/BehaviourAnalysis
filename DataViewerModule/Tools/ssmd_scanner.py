@@ -11,6 +11,7 @@ import os
 import time
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import traceback
 
 
 
@@ -110,6 +111,7 @@ class SSMDScanner(PairwiseScanner):
                     if pval < alpha:
                         results += " *"
                     results += "\n"
+
                     if numerical_pval_array == "none":
                         numerical_pval_array = np.array([pval])
                     else:
@@ -140,6 +142,7 @@ class SSMDScanner(PairwiseScanner):
             self.ui.textEditResults.setText(results)
 
             masked_pval_array = self.pval_array.copy()
+
             masked_pval_array[self.pval_array < alpha] = 0
             masked_pval_array[self.pval_array > alpha] = 1
 
@@ -186,10 +189,13 @@ class SSMDScanner(PairwiseScanner):
                 failed_matches = ""
                 for match in failed_date_matches:
                     failed_matches +=  "\n"+str(match[0])+" vs "+str(match[1])
-                QtWidgets.QMessageBox.warning(self, "Date Matching Warning", "Date Matching failed for the following: \n"+failed_matches+" \n \n Comparison completed without date matching for these instances.")
+                QtWidgets.QMessageBox.warning(self, "Date Matching Warning",
+                                              "Date Matching failed for the following: \n"
+                                              ""+failed_matches + " \n \n "
+                                              "Comparison completed without date matching for these instances.")
 
         except Exception as e:
-            print(e)
+            print(traceback.format_exc())
 
     def export_arrays(self):
         attempts = 0

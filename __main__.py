@@ -27,6 +27,7 @@ from threading import Thread
 import pandas as pd
 import time
 from DataViewerModule.pandasviewer import PandasViewer
+from multiprocessing import cpu_count
 ##Load creatorfile and 
 #qtCreatorFile = "mainwindow.ui" # Enter file here. 
 #Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
@@ -302,6 +303,15 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self.centerfinding_window = CenterFindingWindow(project_path= self.project_path, selection=selection)
 
     def calculate_parameters(self, mode):
+
+        n_threads = QtWidgets.QInputDialog.getInt(self,"How many threads?", "Set # processes", 8, 0, cpu_count(), 1)
+        if not n_threads[1]:
+            return
+        else:
+            n_threads=n_threads[0]
+
+        print(n_threads)
+
         if QtWidgets.QMessageBox.warning(self, "Do you really have time for this?",
                                          "This may take a while, and for now there is no way out. "
                                          "\n Do you wish to start the calculation?",
@@ -309,9 +319,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                                          QtWidgets.QMessageBox.No) == QtWidgets.QMessageBox.No:
             return
 
+
+
         if mode == "selection":
             selection = [item.text(1) for item in  self.ui.treeWidgetProjectFolder.selectedItems()]
-            self.datahandler = DataHandler(path = self.project_path, selection= selection)
+            self.datahandler = DataHandler(path = self.project_path, selection= selection, n_threads = n_threads)
         elif mode == "missing":
             selection = []
             root = self.ui.treeWidgetProjectFolder.invisibleRootItem()
@@ -319,9 +331,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 item = root.child(i)
                 if "dataframe" not in " ".join(os.listdir(item.text(1))):
                     selection.append(item.text(1))
-            self.datahandler = DataHandler(path=self.project_path, selection=selection)
+            self.datahandler = DataHandler(path=self.project_path, selection=selection, n_threads = n_threads)
         else:
-            self.datahandler = DataHandler(self.project_path)
+            self.datahandler = DataHandler(self.project_path, n_threads = n_threads)
         self.datahandler.calculate_all_parameters()
         QtWidgets.QMessageBox.warning(self, "So be it...",
                                       "Calculations have started. This will take a while. Get some coffee."

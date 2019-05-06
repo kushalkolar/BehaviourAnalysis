@@ -168,13 +168,15 @@ def _calculate_parameters(folder):
 if __name__ == "__main__":
     sys.stdout.write("Starting processing pool \n")
     pickle_file = sys.argv[1]
+    n_threads = int(sys.argv[2])
     with open(pickle_file, "rb") as f:
         to_do = pickle.load(f)
     print("loaded pickle \n")
     os.remove(pickle_file)
 
     to_do = [x for x in to_do if "exp" in x.lower()]
-    p = multiprocessing.Pool(multiprocessing.cpu_count()-1)
+
+    p = multiprocessing.Pool(n_threads)
 
     results = p.map(_calculate_parameters, to_do)
 

@@ -33,7 +33,7 @@ class WaitingThread(QtCore.QThread):
 
 
 class DataHandler:
-    def __init__(self, path, selection = False,  calibration_factor = 0):
+    def __init__(self, path, selection = False,  calibration_factor = 0, n_threads = 4):
         
         self.path = path
             
@@ -44,6 +44,7 @@ class DataHandler:
 
             
         self.calibration_factor = calibration_factor
+        self.n_threads = n_threads
         
     def calculate_all_parameters(self):
         self.alive = True
@@ -63,7 +64,7 @@ class DataHandler:
             done = len([os.path.join(root, f) for root, dirs, files in os.walk(self.path) for f in files if "dataframe" in f and os.path.getmtime(os.path.join(root, f)) > start_time])
             percentage_done = (done/to_do)* 100
             try:
-                etc = time.strftime("%H:%M:%S", time.gmtime((self.elapsed/(percentage_done)*100) - self.elapsed))
+                etc = time.strftime("%H:%M:%S", time.gmtime((self.elapsed/(percentage_done+0.000001)*100) - self.elapsed))
             except:
                 etc = time.strftime("%H:%M:%S", time.gmtime((self.elapsed/(0.0000001)*100) - self.elapsed))
 
@@ -90,7 +91,7 @@ class DataHandler:
             pickle.dump(self.folders, f)
         try:
             print("starting subprocess")
-            p = subprocess.Popen(["python", 'DataHandling/work_process.py', pickle_path], stdin = subprocess.PIPE, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            p = subprocess.Popen(["python", 'DataHandling/work_process.py', pickle_path, str(self.n_threads)], stdin = subprocess.PIPE, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             p.communicate()
         except Exception as e:
             print(e)
