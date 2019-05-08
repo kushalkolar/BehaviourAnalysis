@@ -97,6 +97,14 @@ class DataHandler:
             print(e)
 
     def gather_common_dataframe(self):
+
+        def mean_turn(turns):
+            x = np.sum(np.sin(turns)) / len(turns)
+            y = np.sum(np.cos(turns)) / len(turns)
+            return (np.arctan2(x, y))
+
+        def var_turn(turns):
+            return (1 - (np.sqrt(np.sum(np.sin(turns)) ** 2 + np.sum(np.cos(turns)) ** 2) / len(turns)))
         # metadataframes = [pd.read_csv(os.path.join(folder, "metadata.txt"), delimiter = "\t") for folder in self.folders for x in os.listdir(folder) if "dataframe" in x.lower()]
         # for df in tqdm(metadataframes, desc = "Gathering all individual metadataframes"):
         #     to_drop = [x for x in df.columns if "unnamed" in x.lower()]
@@ -139,7 +147,10 @@ class DataHandler:
                     df = pd.read_pickle(os.path.join(folder, f))
                     metadataframe = pd.read_csv(os.path.join(folder, "metadata.txt"), delimiter="\t")
                     for col in df.columns:
-                        if col not in ["X","Y","X_zero","Y_zero","time","Frame", "stim_on"]:
+                        if "turn" in col:
+                            metadataframe[col + "_mean"] = [mean_turn(df[col].dropna().values)]
+                            metadataframe[col + "_var"] = [var_turn(df[col].dropna().values)]
+                        elif col not in ["X","Y","X_zero","Y_zero","time","Frame", "stim_on"]:
                             metadataframe[col + "_mean"] = [df[col].mean()]
                             metadataframe[col + "_median"] = [df[col].median()]
                             metadataframe[col + "_min"] = [df[col].min()]
