@@ -156,7 +156,7 @@ class DataHandler:
                             metadataframe[col + "_min"] = [df[col].min()]
                             metadataframe[col + "_max"] = [df[col].max()]
                     metadataframe["totaldist"] = [np.sum(df["distances030"])]
-                    metadataframe["percentage_notnull"] = [len(df.X.notnull()) / len(df)]
+                    metadataframe["percentage_notnull"] = [len(df[df.X.notnull()]) / len(df)]
 
 
                     stims = pd.read_csv(os.path.join(folder, "stimuli_profile.txt"), delimiter="\t")
