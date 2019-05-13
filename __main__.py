@@ -40,10 +40,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
 
         self.main_path = sys.path[0]
+ 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.setWindowIcon(QtGui.QIcon("icons/centerfinder.png"))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(self.main_path, "icons/centerfinder.png")))
         self.project_path = None
         self.ui.menuTools.setEnabled(True)
 
