@@ -91,7 +91,7 @@ class DataHandler:
             pickle.dump(self.folders, f)
         try:
             print("starting subprocess")
-            p = subprocess.Popen(["python", 'DataHandling/work_process.py', pickle_path, str(self.n_threads)], stdin = subprocess.PIPE, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            p = subprocess.Popen(["python", os.path.join(sys.path[0], 'DataHandling/work_process.py'), pickle_path, str(self.n_threads)], stdin = subprocess.PIPE, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             p.communicate()
         except Exception as e:
             print(e)
@@ -240,7 +240,7 @@ class DataHandler:
         self.metadataframe.drop(to_drop, axis=1, inplace=True)
         if not os.path.exists(os.path.join(self.path, "dataframes")):
             os.mkdir(os.path.join(self.path,  "dataframes"))
-        self.metadataframe.to_pickle(os.path.join(self.path, "/dataframes/common_data.pickle"))
+        self.metadataframe.to_pickle(os.path.join(self.path, "dataframes/common_data.pickle"))
 
         # for key in col_dict.keys():
         #     self.metadataframe[key] = col_dict[key]
