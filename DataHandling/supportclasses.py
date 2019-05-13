@@ -240,7 +240,7 @@ class DataHandler:
         self.metadataframe.drop(to_drop, axis=1, inplace=True)
         if not os.path.exists(os.path.join(self.path, "dataframes")):
             os.mkdir(os.path.join(self.path,  "dataframes"))
-        self.metadataframe.to_pickle(os.path.join(self.path, "dataframes\\common_data.pickle"))
+        self.metadataframe.to_pickle(os.path.join(self.path, "/dataframes/common_data.pickle"))
 
         # for key in col_dict.keys():
         #     self.metadataframe[key] = col_dict[key]
