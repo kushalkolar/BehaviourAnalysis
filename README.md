@@ -1,5 +1,7 @@
 # The Linux branch is not ready for use yet! It will work but there are some issues we are working on.
 
+This is a test for git
+
 # BehaviourAnalysis
 
 This program is made to serve as an analysis and project management tool for use with the Ciona Behaviour Project in the Chatzigeorgiou lab.

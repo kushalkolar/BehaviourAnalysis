@@ -284,7 +284,10 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             if text.endswith(".avi"):
                 self.find_center(text)
             elif text.endswith(".txt"):
-                os.popen("notepad "+text)
+                try:
+                    os.popen("notepad "+text)
+                except:
+                    os.popen("mousepad "+text)
             elif text.endswith(".pickle"):
                 self.pv = PandasViewer(df = text, path = os.path.split(text))
 #                self.dv = DataViewer(df_path = text)
