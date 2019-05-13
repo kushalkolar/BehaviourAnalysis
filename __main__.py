@@ -259,16 +259,16 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
             if os.path.isdir(path_info):
                 self.display_folder_structure(path_info, parent_item)
-                parent_item.setIcon(0, QtGui.QIcon("icons/folder.ico"))
+                parent_item.setIcon(0, QtGui.QIcon("./icons/folder.ico"))
 
             else:
                 if path_info.endswith(".avi"):
-                    parent_item.setIcon(0, QtGui.QIcon("icons/video.ico"))
+                    parent_item.setIcon(0, QtGui.QIcon("./icons/video.ico"))
 
                 elif path_info.endswith(".pickle"):
-                    parent_item.setIcon(0, QtGui.QIcon("icons/pickle.png"))
+                    parent_item.setIcon(0, QtGui.QIcon("./icons/pickle.png"))
                 else:
-                    parent_item.setIcon(0, QtGui.QIcon("icons/file.ico"))
+                    parent_item.setIcon(0, QtGui.QIcon("./icons/file.ico"))
 
     def find_center(self, path):
         cf = Centerfinder()
