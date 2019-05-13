@@ -234,6 +234,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.ui.treeWidgetProjectFolder.clear()
             self.display_folder_structure(self.project_path, self.ui.treeWidgetProjectFolder)
             files_loaded = len([x for x in os.listdir(self.project_path) if "exp" in x.lower() and  os.path.isdir(os.path.join(self.project_path,x))])
+            files_loaded.sort()
             circle_files = len([f for root, dirs, files in os.walk(self.project_path) for f in files if "center" in f.lower()])
 
             sys.stdout.write("Files Loaded: "+str(files_loaded)+" Center files: "+str(circle_files)+"\n")
@@ -254,7 +255,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             print("No paths set. This is likely not so helpful.")
 
     def display_folder_structure(self, path, tree):
-        for element in os.listdir(path):
+        
+        for element in sorted(os.listdir(path)):
             path_info = os.path.join(path, element)
             parent_item = QtWidgets.QTreeWidgetItem(tree,  [os.path.basename(element)])
             parent_item.setData(1,0,path_info)
