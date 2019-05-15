@@ -291,7 +291,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 if os.name == "nt":
                     os.popen("notepad "+text)
                 elif os.name == "posix":
-                    os.popen("kate "+text)
+                    os.popen("gedit "+text)
             elif text.endswith(".pickle"):
                 self.pv = PandasViewer(df = text, path = os.path.split(text))
 #                self.dv = DataViewer(df_path = text)
