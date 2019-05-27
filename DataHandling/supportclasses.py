@@ -152,11 +152,15 @@ class DataHandler:
                             metadataframe[col + "_var"] = [var_turn(df[col].dropna().values)]
 
                             try:
-                                metadataframe[col + "_mean_at_speed"] = [mean_turn(df[col][df["speed030"] > 500].dropna().values)]
-                                metadataframe[col + "_var_at_speed"] = [var_turn(df[col][df["speed030"] > 500].dropna().values)]
-                            except:
-                                metadataframe[col + "_mean_at_speed"] = [np.nan]
-                                metadataframe[col + "_var_at_speed"] = [np.nan]
+                                if len(df[df["speed030"] > 500]) > 30:
+                                    metadataframe[col + "_mean_at_speed"] = [mean_turn(df[col][df["speed030"] > 500].dropna().values)]
+                                    metadataframe[col + "_var_at_speed"] = [var_turn(df[col][df["speed030"] > 500].dropna().values)]
+                                else:
+                                    metadataframe[col + "_mean_at_speed"] = [np.nan]
+                                    metadataframe[col + "_var_at_speed"] = [np.nan]
+                            except Exception as e:
+                                print("error in turns at speed vals")
+                                print(e)
 
 
                         elif col not in ["X","Y","X_zero","Y_zero","time","Frame", "stim_on"]:
