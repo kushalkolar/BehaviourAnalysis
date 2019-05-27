@@ -296,6 +296,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     except:
                         try:
                             os.popen("vim "+text)
+                        except Exception as e:
+                            print(e)
+                            
             elif text.endswith(".pickle"):
                 self.pv = PandasViewer(df = text, path = os.path.split(text))
 #                self.dv = DataViewer(df_path = text)
