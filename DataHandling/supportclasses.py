@@ -150,11 +150,16 @@ class DataHandler:
                         if "turn" in col:
                             metadataframe[col + "_mean"] = [mean_turn(df[col].dropna().values)]
                             metadataframe[col + "_var"] = [var_turn(df[col].dropna().values)]
+
+                            metadataframe[col + "_mean_at_speed"] = [mean_turn(df[col][df["speed030"] > 500].dropna().values)]
+                            metadataframe[col + "_var_at_speed"] = [var_turn(df[col][df["speed030"] > 500].dropna().values)]
+
                         elif col not in ["X","Y","X_zero","Y_zero","time","Frame", "stim_on"]:
                             metadataframe[col + "_mean"] = [df[col].mean()]
                             metadataframe[col + "_median"] = [df[col].median()]
                             metadataframe[col + "_min"] = [df[col].min()]
                             metadataframe[col + "_max"] = [df[col].max()]
+                            metadataframe[col + "_var"] = [df[col.var()]]
                     metadataframe["totaldist"] = [np.sum(df["distances030"])]
                     metadataframe["percentage_notnull"] = [len(df[df.X.notnull()]) / len(df)]
 
