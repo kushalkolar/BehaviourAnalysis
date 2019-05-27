@@ -159,7 +159,7 @@ class DataHandler:
                             metadataframe[col + "_median"] = [df[col].median()]
                             metadataframe[col + "_min"] = [df[col].min()]
                             metadataframe[col + "_max"] = [df[col].max()]
-                            metadataframe[col + "_var"] = [df[col.var()]]
+                            metadataframe[col + "_var"] = [df[col].var()]
                     metadataframe["totaldist"] = [np.sum(df["distances030"])]
                     metadataframe["percentage_notnull"] = [len(df[df.X.notnull()]) / len(df)]
 
