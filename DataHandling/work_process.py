@@ -55,7 +55,7 @@ def _calculate_parameters(folder):
         sys.stdout.write(folder+ "\n")
         metadata_path = os.path.join(folder, "metadata.txt")
         metadata = pd.read_csv(metadata_path, delimiter="\t")
-        temperatures = pd.read_csv(os.path.join(folder, "logged_temperatures.txt"), delimiter = "\t")
+#        temperatures = pd.read_csv(os.path.join(folder, "logged_temperatures.txt"), delimiter = "\t")
 
         if "metadatapath" not in metadata.columns:
             metadata["metadatapath"] = metadata_path
@@ -103,7 +103,7 @@ def _calculate_parameters(folder):
 
                 spacer_frame = pd.DataFrame({"Frame": range(df.Frame.iloc[-1])})
                 df = pd.merge(spacer_frame, df, how="outer", on="Frame")
-                df["rho"], df["phi"] = cart2pol(df.X_zero.diff(), df.Y_zero.diff())
+                
                 coords = np.hstack((df.X_zero.values.reshape(-1, 1), df.Y_zero.values.reshape(-1, 1)))
                 df["from_center"] = np.linalg.norm(np.array([0, 0]) - coords, axis=1)
 
@@ -113,9 +113,10 @@ def _calculate_parameters(folder):
                     spacer[:] = np.nan
                     pstring = str(p).zfill(3)
                     df["distances" + pstring] = np.hstack((spacer, dists))
+                    df["rho"+ pstring], df["phi"+ pstring] = cart2pol(df.X_zero.diff(periods = p), df.Y_zero.diff(periods = p))
                     df["speed" + pstring] = (df["distances" + pstring] / (1 / metadata.framerate[0])) / p
                     df["acceleration" + pstring] = df["speed" + pstring].diff()
-                    turns = np.array(df.phi.diff(periods=p))
+                    turns = np.array(df["phi"+ pstring].diff(periods=p))
                     turns[turns > np.pi] -= 2 * np.pi
                     turns[turns < -np.pi] += 2 * np.pi
                     df["turn" + pstring] = turns
