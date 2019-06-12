@@ -40,6 +40,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
 
         self.main_path = sys.path[0]
+        if len(self.main_path) == 0:
+            self.main_path == os.curdir
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -213,9 +215,9 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
                 if all_files_there:
                     if "exp_" not in d.lower():
-                        newdir = os.path.join(self.project_path, "Exp_"+d.split("\\")[-1])
+                        newdir = os.path.join(self.project_path, "Exp_"+os.path.split(d)[-1])
                     else:
-                        newdir = os.path.join(self.project_path, d.split("\\")[-1])
+                        newdir = os.path.join(self.project_path, os.path.split(d_)[-1])
                     if not os.path.exists(newdir):
                         os.mkdir(newdir)
                     for f in [stimuli_profile, metadata, temperature, arena, tracking]:
