@@ -217,7 +217,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                     if "exp_" not in d.lower():
                         newdir = os.path.join(self.project_path, "Exp_"+os.path.split(d)[-1])
                     else:
-                        newdir = os.path.join(self.project_path, os.path.split(d_)[-1])
+                        newdir = os.path.join(self.project_path, os.path.split(d)[-1])
                     if not os.path.exists(newdir):
                         os.mkdir(newdir)
                     for f in [stimuli_profile, metadata, temperature, arena, tracking]:
