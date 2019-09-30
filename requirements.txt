@@ -1,0 +1,10 @@
+ numpy
+ pandas
+ matplotlib
+ PyQt5
+ pyqtgraph
+ psutil
+ scikit-learn
+ tqdm
+ opencv-python
+ 

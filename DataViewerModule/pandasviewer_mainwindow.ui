@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1057</width>
-    <height>630</height>
+    <height>681</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -516,44 +516,51 @@
      <x>0</x>
      <y>0</y>
      <width>1057</width>
-     <height>21</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>Tools</string>
+     <string>Too&amp;ls</string>
     </property>
     <widget class="QMenu" name="menuSave_Selected_Data">
      <property name="title">
-      <string>Save Selected Data...</string>
+      <string>&amp;Save Selected Data...</string>
      </property>
      <addaction name="action_as_CSV"/>
      <addaction name="action_as_Pickle"/>
     </widget>
     <widget class="QMenu" name="menuStatistiscs">
      <property name="title">
-      <string>Statistiscs</string>
+      <string>Stat&amp;istiscs</string>
      </property>
      <addaction name="actionScan_for_significance"/>
      <addaction name="actionPairwaise_Test_Categorical"/>
     </widget>
     <widget class="QMenu" name="menuNormalize_Selected_Data">
      <property name="title">
-      <string>Normalize Selected Data</string>
+      <string>&amp;Normalize Selected Data</string>
      </property>
      <addaction name="actionminmax_scale"/>
      <addaction name="actionmean_scale"/>
+    </widget>
+    <widget class="QMenu" name="menuFeatures">
+     <property name="title">
+      <string>Features</string>
+     </property>
+     <addaction name="actionRoaming"/>
     </widget>
     <addaction name="actionLoad_Dataset_into_Viewer"/>
     <addaction name="menuSave_Selected_Data"/>
     <addaction name="actionRename_items_in_column"/>
     <addaction name="separator"/>
+    <addaction name="menuFeatures"/>
     <addaction name="menuStatistiscs"/>
     <addaction name="menuNormalize_Selected_Data"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <addaction name="actionData_Selection"/>
     <addaction name="actionData"/>
@@ -568,17 +575,17 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_as_CSV">
    <property name="text">
-    <string>...as CSV</string>
+    <string>...as &amp;CSV</string>
    </property>
   </action>
   <action name="action_as_Pickle">
    <property name="text">
-    <string>...as Pickle</string>
+    <string>...as &amp;Pickle</string>
    </property>
   </action>
   <action name="actionLoad_Dataset_into_Viewer">
    <property name="text">
-    <string>Load Dataset into Viewer</string>
+    <string>&amp;Load Dataset into Viewer</string>
    </property>
   </action>
   <action name="actionopen_console">
@@ -588,22 +595,22 @@
   </action>
   <action name="actionData">
    <property name="text">
-    <string>Data</string>
+    <string>&amp;Data</string>
    </property>
   </action>
   <action name="actionPlotting">
    <property name="text">
-    <string>Plotting</string>
+    <string>&amp;Plotting</string>
    </property>
   </action>
   <action name="actionConsole">
    <property name="text">
-    <string>Console</string>
+    <string>&amp;Console</string>
    </property>
   </action>
   <action name="actionData_Selection">
    <property name="text">
-    <string>Selection Tools</string>
+    <string>&amp;Selection Tools</string>
    </property>
   </action>
   <action name="actionReciprocal">
@@ -628,32 +635,32 @@
   </action>
   <action name="actionTransforms">
    <property name="text">
-    <string>Transforms</string>
+    <string>&amp;Transforms</string>
    </property>
   </action>
   <action name="actionScan_for_significance">
    <property name="text">
-    <string>Scan Categoricals</string>
+    <string>&amp;Scan Categoricals</string>
    </property>
   </action>
   <action name="actionStatistics">
    <property name="text">
-    <string>Statistics</string>
+    <string>Stat&amp;istics</string>
    </property>
   </action>
   <action name="actionRename_items_in_column">
    <property name="text">
-    <string>Rename items in column</string>
+    <string>&amp;Rename items in column</string>
    </property>
   </action>
   <action name="actionPairwaise_Test_Categorical">
    <property name="text">
-    <string>Barcodes and Pairwise Testing</string>
+    <string>&amp;Barcodes and Pairwise Testing</string>
    </property>
   </action>
   <action name="actionminmax_scale">
    <property name="text">
-    <string>minmax_scale</string>
+    <string>&amp;minmax_scale</string>
    </property>
    <property name="toolTip">
     <string>Forces data to the range [-1,1]</string>
@@ -661,10 +668,15 @@
   </action>
   <action name="actionmean_scale">
    <property name="text">
-    <string>mean_scale</string>
+    <string>mean_&amp;scale</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Standardizes.&lt;br/&gt;Forces zero mean and unit variance so that for each feature:&lt;/p&gt;&lt;p&gt;mean = 0,&lt;br/&gt;std = 1.0.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </action>
+  <action name="actionRoaming">
+   <property name="text">
+    <string>Roaming</string>
    </property>
   </action>
  </widget>

@@ -249,7 +249,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
                 if "center" not in listed_dir and "dataframe" in listed_dir:
                     item.setBackground(0, QtGui.QColor("lightblue"))
                 if "center" in listed_dir and "dataframe" in listed_dir:
-                    item.setBackground(0, QtGui.QColor("lightgreen"))
+                    item.setBackground(0, QtGui.QColor(0, 255, 68, 50))
                     
         except Exception as e:
             print(e)
@@ -267,11 +267,11 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
 
             if os.path.isdir(path_info):
                 self.display_folder_structure(path_info, parent_item)
-                parent_item.setIcon(0, QtGui.QIcon(os.path.join(self.main_path, "/icons/folder.ico")))
+                parent_item.setIcon(0, QtGui.QIcon(os.path.join(self.main_path, "./icons/folder.ico")))
 
             else:
                 if path_info.endswith(".avi"):
-                    parent_item.setIcon(0, QtGui.QIcon(os.path.join(self.main_path, "/icons/video.ico")))
+                    parent_item.setIcon(0, QtGui.QIcon(os.path.join(self.main_path, "./icons/video.ico")))
 
                 elif path_info.endswith(".pickle"):
                     parent_item.setIcon(0, QtGui.QIcon(os.path.join(self.main_path, "./icons/pickle.png")))
