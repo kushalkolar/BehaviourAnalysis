@@ -137,6 +137,11 @@ def _calculate_parameters(folder):
 
                 df["displacement"] = np.linalg.norm(coords[first_not_nan] - coords, axis = 1)
 
+                roaming = np.zeros(shape = len(df))
+                roaming_index = df.loc[(df["speed030"] > 500) & (df["turn005"].diff() < 1.2)].index
+                roaming[roaming_index] = 1
+                df["roaming"] = roaming
+
                 complexity = lH(df, 30)
                 df["lH"] = complexity
 
