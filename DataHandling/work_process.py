@@ -55,7 +55,7 @@ def _calculate_parameters(folder):
         sys.stdout.write(folder+ "\n")
         metadata_path = os.path.join(folder, "metadata.txt")
         metadata = pd.read_csv(metadata_path, delimiter="\t")
-        temperatures = pd.read_csv(os.path.join(folder, "logged_temperatures.txt"), delimiter = "\t")
+#        temperatures = pd.read_csv(os.path.join(folder, "logged_temperatures.txt"), delimiter = "\t")
 
         if "metadatapath" not in metadata.columns:
             metadata["metadatapath"] = metadata_path
