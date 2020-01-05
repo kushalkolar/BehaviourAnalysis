@@ -27,7 +27,7 @@ source ./BehaviourAnalysisEnv/bin/activate
 pip install -r requirements.txt
 ```
 
-#### run __main__.py
+#### run
 ```sh
-python __main__.py
+python behaviour_analysis
 ```
